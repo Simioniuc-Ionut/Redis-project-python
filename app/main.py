@@ -1,4 +1,4 @@
-import connection.ConnectionRedis as Connection
+from app.connection.ConnectionRedis import ConnectionRedis
 from app.command_pattern.commands.CommandPing.CommandPing import CommandPing
 from app.command_pattern.invoker.InvokerCommands import InvokerCommands
 from app.reciver.Receiver import Receiver
@@ -14,8 +14,8 @@ def main():
 
     #server_socket.accept()  # wait for client
 
-    #client = Connection.ConnectionRedis()
-    #client.accept_client()  # wait for client
+    client = ConnectionRedis()
+    client.accept_client()  # wait for client
 
     receiver = Receiver()
 
