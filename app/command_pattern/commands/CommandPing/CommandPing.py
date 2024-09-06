@@ -1,5 +1,5 @@
 # Commands
-from app.command_pattern import CommandInterface as Command
+from app.command_pattern.CommandInterface import Command
 
 
 class CommandPing(Command):
