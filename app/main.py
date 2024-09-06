@@ -2,6 +2,7 @@ import connection.ConnectionRedis as Connection
 from app.command_pattern.commands.CommandPing.CommandPing import CommandPing
 from app.command_pattern.invoker.InvokerCommands import InvokerCommands
 from app.reciver.Receiver import Receiver
+import socket  # noqa: F401
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -9,14 +10,15 @@ def main():
 
     # Uncomment this to pass the first stage
     #
-    # server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
-    #
-    # server_socket.accept()  # wait for client
+    server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
 
-    client = Connection.ConnectionRedis()
-    client.accept_client()  # wait for client
+    server_socket.accept()  # wait for client
+
+    #client = Connection.ConnectionRedis()
+    #client.accept_client()  # wait for client
 
     receiver = Receiver()
+
     #setez comanda
     command_ping = CommandPing(receiver)
 
