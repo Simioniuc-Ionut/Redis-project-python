@@ -10,6 +10,7 @@ class EventLoop:
         self._is_running = True
         self.events = {}  # handle different types of events
         self.client_socket = client_socket
+        self._mediator = None
 
     def start_task(self):
         self.__initiate()
@@ -27,7 +28,7 @@ class EventLoop:
 
     def __initiate(self):
         self._mediator = Mediator()
-        client_receiver = Receiver(self.__receiver, self._mediator)
+        client_receiver = Receiver(self.client_socket, self._mediator)
         server_invoker = InvokerCommands()
 
         self._mediator.set_receiver(client_receiver)
