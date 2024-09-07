@@ -14,7 +14,7 @@ async def main_loop(server_set):
         client_socket = await server_set.accept_client()  # asincron wait for client
         if client_socket:
             loop = EventLoop(client_socket)
-            asyncio.create_task(loop.start_task())  # asincron start task
+            ceva = await loop.start_task()  # asincron start task
 
 
         # daca clientu lse deconcteaza apelez opresc loop ul si inchid clientul
