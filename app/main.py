@@ -18,7 +18,7 @@ def main():
     client.accept_client()  # wait for client
 
     receiver = Receiver(client)
-    client
+
     #setez comanda
     command_ping = CommandPing(receiver)
 

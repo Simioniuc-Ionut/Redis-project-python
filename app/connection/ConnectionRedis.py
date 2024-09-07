@@ -12,3 +12,6 @@ class ConnectionRedis:
 
     def accept_client(self):
         return self._client.accept()  # wait for client
+
+    def send(self, message):
+        self._instance._client.sendall(message)
