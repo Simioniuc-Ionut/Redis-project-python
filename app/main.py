@@ -19,13 +19,23 @@ def main():
     client.accept_client()  # wait for client
 
     receiver = Receiver(client)
+    invoker = InvokerCommands()
 
     # Set the command
-    command_ping = CommandPing(receiver)
+    is_command_set = False
+    command = None
+    while True:
+        responde = receiver.process_messages()
+        if responde == "PING":
+                is_command_set = True
+                command = CommandPing(receiver)
+                break
 
-    invoker = InvokerCommands()
-    invoker.set_commands([command_ping])
-    invoker.execute_commands()
+        if is_command_set:
+            invoker.set_commands([command])
+            invoker.execute_commands()
+
+
 
     client.close()
 

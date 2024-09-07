@@ -37,3 +37,17 @@ class ConnectionRedis:
             print("Error: Broken pipe. The client may have disconnected.")
             self._instance._client_socket.close()
             self._instance._client_socket = None
+
+    def recv(self, bufsize):
+        """
+        Receives a message from the client.
+        Args:
+           bufsize (int): The maximum amount of data to be received at once.
+        Returns:
+           bytes: The message received.
+        """
+        if self._instance._client_socket:
+              return self._instance._client_socket.recv(bufsize)
+        else:
+            print("Error: No client connected.")
+            return b""
