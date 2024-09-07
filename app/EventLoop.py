@@ -15,7 +15,7 @@ class EventLoop:
     async def wait_message_from_receiver(self):
         # Trebuie să fie asincronă
         # return await asyncio.get_event_loop().sock_recv(self.client_socket, 1024)
-        return self.client_socket.receive(1024)
+        return await self.client_socket.receive(1024)
     def send_message_to_receiver(self, message):
         self._mediator.notify_receiver(message)
 
