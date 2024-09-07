@@ -4,6 +4,7 @@ from app.command_pattern.invoker.InvokerCommands import InvokerCommands
 from app.reciver.Receiver import Receiver
 import socket  # noqa: F401
 
+
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!")
@@ -19,7 +20,7 @@ def main():
 
     receiver = Receiver(client)
 
-    #setez comanda
+    # Set the command
     command_ping = CommandPing(receiver)
 
     invoker = InvokerCommands()
@@ -27,6 +28,7 @@ def main():
     invoker.execute_commands()
 
     client.close()
+
 
 if __name__ == "__main__":
     main()
