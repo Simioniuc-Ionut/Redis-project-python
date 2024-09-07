@@ -18,7 +18,7 @@ class Receiver:
         # ex : *3\r\n$3\r\nSET\r\n$4\r\nPING\r\n$7\r\nmyvalue\r\n
         if message:
             # debug
-            # print(f"Received message: {message.decode()}")
+            print(f"Received message: {message.decode()}")
             lines = message.decode().split("\r\n")
 
             if lines[0][:1] == "*":  # array
@@ -38,5 +38,5 @@ class Receiver:
             index += 1  # move to the next complet line
 
         # debug
-        # print("Arguments:", arguments)
+        print("Arguments:", arguments)
         self.__mediator.process_commands("*", arguments)
