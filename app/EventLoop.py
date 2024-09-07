@@ -8,7 +8,6 @@ from app.reciver.Receiver import Receiver
 class EventLoop:
     def __init__(self, client_socket):
         self._is_running = True
-        self.events = {}  # handle different types of events
         self.client_socket = client_socket
         self._mediator = None
 
