@@ -23,14 +23,14 @@ class EventLoop:
         self.__initiate()
         print("Event Loop started")
         while self._is_running:  # here manage communication between server - client
-            message = await self.wait_message_from_receiver()  # wait message from client
+            message = self.wait_message_from_receiver()  # wait message from client
             if not message:  # connection is closed
                 print("Client disconnected")
                 self.client_socket.close()
                 self._is_running = False
             else:
                 # debug
-                print(f"Message received: {message}")
+                # print(f"Message received: {message}")
                 self.send_message_to_receiver(message)
 
     def __initiate(self):

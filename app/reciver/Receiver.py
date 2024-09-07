@@ -15,7 +15,7 @@ class Receiver:
         self.__client.send(b"+PONG\r\n")
 
     def send_message(self, message):
-         self.__process_messages(message)
+          self.__process_messages(message)
 
     def __process_messages(self, message):
          # ex : *3\r\n$3\r\nSET\r\n$4\r\nPING\r\n$7\r\nmyvalue\r\n
