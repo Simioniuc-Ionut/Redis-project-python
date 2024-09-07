@@ -1,3 +1,4 @@
+import asyncio
 import socket  # noqa: F401
 
 
@@ -11,8 +12,11 @@ class ConnectionRedis:
             cls._instance._client_socket = None
         return cls._instance
 
-    def accept_client(self):
-        self._instance._client_socket, _address = self._instance._server_socket.accept()  # wait for client
+    async def accept_client(self):
+        # Trebuie să fie asincronă
+        self._instance._client_socket, _address = \
+            await asyncio.get_event_loop().sock_accept(self._instance._server_socket)
+        return self._instance._client_socket  # returnează socketul clientului
 
     def close(self):
         """
@@ -28,15 +32,10 @@ class ConnectionRedis:
         Args:
         message (bytes): The message to send.
         """
-        try:
-            if self._instance._client_socket:
-                self._instance._client_socket.sendall(message)
-            else:
-                print("Error: No client connected.")
-        except BrokenPipeError:
-            print("Error: Broken pipe. The client may have disconnected.")
-            self._instance._client_socket.close()
-            self._instance._client_socket = None
+        if self._instance._client_socket:
+            self._instance._client_socket.sendall(message)
+        else:
+            print("Error: No client connected.")
 
     def receive(self, bufsize):
         """
@@ -47,7 +46,7 @@ class ConnectionRedis:
            bytes: The message received.
         """
         if self._instance._client_socket:
-              return self._instance._client_socket.recv(bufsize)
+            return self._instance._client_socket.recv(bufsize)
         else:
             print("Error: No client connected.")
             return b""
