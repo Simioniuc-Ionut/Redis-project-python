@@ -4,6 +4,8 @@ from app.command_pattern.commands.CommandPing.CommandPing import CommandPing
 Mediator Class: Manages communication between the 
 Receiver and the InvokerCommands.
 """
+
+
 class Mediator:
     def __init__(self):
         self._receiver = None
@@ -15,9 +17,17 @@ class Mediator:
     def set_invoker(self, invoker):
         self._invoker = invoker
 
-    def notify(self, sender, event):
-        if sender == "*": # an array with responses
+    def process_commands(self, sender, event):  # here process commands and send them to invoker
+        if sender == "*":  # an array with responses
             for response in event:
                 if response == "PING":
                     self._invoker.set_commands([CommandPing(self._receiver)])
                     self._invoker.execute_commands()
+
+    def notify_receiver(self, message):
+        self._receiver.send_message(message)
+
+    def notify_invoker(self):
+        messages = self._receiver.recv(1024)  # read up to 1024 bytes
+        # self.__process_messages(messages)
+        return messages

@@ -1,3 +1,6 @@
+import asyncio
+
+from app.EventLoop import EventLoop
 from app.connection.ConnectionRedis import ConnectionRedis
 from app.mediator.Mediator import Mediator
 from app.command_pattern.commands.CommandPing.CommandPing import CommandPing
@@ -6,24 +9,28 @@ from app.reciver.Receiver import Receiver
 import socket  # noqa: F401
 
 
+async def main_loop(server_set):
+    while True:  # manage all connections in concurrent way
+        client_socket = await server_set.accept_client()  # wait for client
+        loop = EventLoop(client_socket)
+        asyncio.create_task(loop.start_task())
+
+        # daca clientu lse deconcteaza apelez opresc loop ul si inchid clientul
+        # to do
+        # client.close()
+
+
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!")
 
-client = ConnectionRedis()
-client.accept_client()  # wait for client
+# singleton instance
+server_set = ConnectionRedis()
 
-mediator = Mediator()
-receiver = Receiver(client, mediator)
-invoker = InvokerCommands()
+# Event Loop
+asyncio.run(main_loop(server_set))
 
-mediator.set_receiver(receiver)
-mediator.set_invoker(invoker)
 
-while True:
-    receiver.process_messages()
-
-client.close()
 
 if __name__ == "__main__":
     main()

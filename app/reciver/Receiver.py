@@ -1,4 +1,3 @@
-
 """
 Receiver Class:
 The Receiver class reads messages from the client,
@@ -12,33 +11,32 @@ class Receiver:
         self.__client = client
         self.__mediator = mediator
 
-    def ping(self):
-        self.__client.send(b"+PONG\r\n")
+    def send_message(self, message):
+        self.__process_messages(message)
 
-    def process_messages(self):
-        while True:
-            message = self.__client.recv(1024)  # read up to 1024 bytes
-            if message:
-                decoded_message = message.decode()
+    def __process_messages(self, message):
+        # ex : *3\r\n$3\r\nSET\r\n$4\r\nPING\r\n$7\r\nmyvalue\r\n
+        if message:
+            # debug
+            # print(f"Received message: {message.decode()}")
+            lines = message.decode().split("\r\n")
 
-                # debug
-                # print(f"Received message: {message.decode()}")
-                arguments = []
-                lines = message.decode().split("\r\n")
+            if lines[0][:1] == "*":  # array
+                self.__process_array_message(lines)
 
-                if (lines[0][:1] == "*"):  # array
-                    num_args = int(lines[0][1:])
-                    # ex : *3\r\n$3\r\nSET\r\n$4\r\nPING\r\n$7\r\nmyvalue\r\n
+        else:
+            print("Error: No message received.")
 
-                    index = 1
-                    for _ in range(num_args):
-                        index += 1  # move to the message line
-                        argument = lines[index]  # get the argument
-                        arguments.append(argument)
-                        index += 1  # move to the next complet line
+    def __process_array_message(self, lines):
+        num_args = int(lines[0][1:])
+        arguments = []
+        index = 1
+        for _ in range(num_args):
+            index += 1  # move to the message line
+            argument = lines[index]  # get the argument
+            arguments.append(argument)
+            index += 1  # move to the next complet line
 
-                    # debug
-                    # print("Arguments:", arguments)
-                    self.__mediator.notify("*", arguments)
-            else:
-                break
+        # debug
+        # print("Arguments:", arguments)
+        self.__mediator.process_commands("*", arguments)
