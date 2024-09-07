@@ -27,7 +27,3 @@ class Mediator:
     def notify_receiver(self, message):
         self._receiver.send_message(message)
 
-    def notify_invoker(self):
-        messages = self._receiver.recv(1024)  # read up to 1024 bytes
-        # self.__process_messages(messages)
-        return messages
