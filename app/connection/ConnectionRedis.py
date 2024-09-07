@@ -38,7 +38,7 @@ class ConnectionRedis:
             self._instance._client_socket.close()
             self._instance._client_socket = None
 
-    def recv(self, bufsize):
+    def receive(self, bufsize):
         """
         Receives a message from the client.
         Args:

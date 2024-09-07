@@ -37,7 +37,7 @@ class EventLoop:
         print("Event Loop initiated")
 
     def wait_message_from_receiver(self):
-        message = self.client_socket.recv(1024)
+        message = self.client_socket.receive(1024)
         return message
 
     def send_message_to_receiver(self, message):
