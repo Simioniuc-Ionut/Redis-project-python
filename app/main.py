@@ -16,7 +16,7 @@ async def main_loop(server_set):
         if client_socket:
             loop = EventLoop(client_socket)
             print("aici in main loop", client_socket)
-            asyncio.create_task(loop.start_task())  # asincron start task
+            asyncio.create_task(await loop.start_task())  # asincron start task
             # debug
             print("Client dupa async")
 
