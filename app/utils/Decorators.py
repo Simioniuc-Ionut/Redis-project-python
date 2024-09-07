@@ -1,3 +1,5 @@
+# app/utils/Decorators.py
+
 def debug(func):
     def wrapper(*args, **kwargs):
         class_name = args[0].__class__.__name__ if args else ''
@@ -7,7 +9,9 @@ def debug(func):
         return result
 
     return wrapper
- def debug_process_with_dict(func):
+
+
+def debug_process_with_dict(func):
     def wrapper(*args, **kwargs):
         instance = args[0]  # Obținem instanța clasei
         debug_dict = kwargs.get('debug_dict', {})
@@ -23,4 +27,5 @@ def debug(func):
 
         print(f"{instance.__class__.__name__}.{func.__name__} completed")
         return result
+
     return wrapper
