@@ -3,7 +3,7 @@ import socket  # noqa: F401
 
 
 class ConnectionRedis:
-    _instance = None # used for singleton implementation
+    _instance = None  # used for singleton implementation
 
     def __new__(cls):
         if cls._instance is None:
@@ -17,7 +17,8 @@ class ConnectionRedis:
         # self._instance._client_socket, _address = await asyncio.get_event_loop().sock_accept(self._instance._server_socket)
 
         # return self._instance._client_socket  # returnează socketul clientului
-        self._instance._client_socket, _address = self._instance._server_socket.accept()  # wait for client
+        self._instance._client_socket,_addr = self._instance._server_socket.accept()  # wait for client
+        return self._instance._client_socket,_addr
     def close(self):
         """
         Closes the connection to the Redis server.
