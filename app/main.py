@@ -26,11 +26,10 @@ def main():
     command = None
     while True:
         responde = receiver.process_messages()
-        if responde == "PING":
+        print("in main command loop " + responde) # debug
+        if responde.contains("PING"):
                 is_command_set = True
                 command = CommandPing(receiver)
-                break
-
         if is_command_set:
             invoker.set_commands([command])
             invoker.execute_commands()
