@@ -1,22 +1,29 @@
-class Receiver:
-    def __init__(self, client):
-        self.__client = client
+from app.utils.Decorators import debug
 
+"""
+Receiver Class:
+The Receiver class reads messages from the client,
+ processes them,
+  and notifies the Mediator with the parsed arguments.
+"""
+class Receiver:
+    def __init__(self, client,mediator):
+        self.__client = client
+        self.__mediator = mediator
+
+    @debug
     def ping(self):
         self.__client.send(b"+PONG\r\n")
 
+    @debug
     def process_messages(self):
         while True:
             message = self.__client.recv(1024) # read up to 1024 bytes
             if message:
-                result = None
-                # debug
-                print(f"Received message: {message.decode()}")
-                arguments = []
-                lines = message.decode().split("\r\n")
+               arguments = []
+               lines = message.decode().split("\r\n")
 
-                if(lines[0][:1] == "*"): # array
-                    arguments = ["*"]  # array
+               if(lines[0][:1] == "*"): # array
                     num_args = int(lines[0][1:])
                     # ex : *3\r\n$3\r\nSET\r\n$4\r\nPING\r\n$7\r\nmyvalue\r\n
 
@@ -27,7 +34,6 @@ class Receiver:
                         arguments.append(argument)
                         index += 1 # move to the next complet line
 
-                    print("Arguments:", arguments)  # debug
-                    return arguments
+                    self.__mediator.notify("*", arguments)
             else:
                 break

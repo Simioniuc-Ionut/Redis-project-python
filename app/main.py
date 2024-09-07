@@ -1,4 +1,5 @@
 from app.connection.ConnectionRedis import ConnectionRedis
+from app.mediator.Mediator import Mediator
 from app.command_pattern.commands.CommandPing.CommandPing import CommandPing
 from app.command_pattern.invoker.InvokerCommands import InvokerCommands
 from app.reciver.Receiver import Receiver
@@ -9,37 +10,21 @@ def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!")
 
-    # Uncomment this to pass the first stage
-    #
-    #server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
 
-    #server_socket.accept()  # wait for client
+client = ConnectionRedis()
+client.accept_client()  # wait for client
 
-    client = ConnectionRedis()
-    client.accept_client()  # wait for client
+mediator = Mediator()
+receiver = Receiver(client, mediator)
+invoker = InvokerCommands()
 
-    receiver = Receiver(client)
-    invoker = InvokerCommands()
+mediator.set_receiver(receiver)
+mediator.set_invoker(invoker)
 
-    # Set the command
-    is_command_set = False
-    command = None
-    while True:
-        responde = receiver.process_messages()
-        print("in main command loop ",responde) # debug
-        if responde[0] == "*": # an array response
-            for r in responde:
-                if r == "PING":
-                    is_command_set = True
-                    invoker.set_commands([CommandPing(receiver)])
+while True:
+    receiver.process_messages()
 
-        if is_command_set:
-            invoker.execute_commands()
-
-
-
-    client.close()
-
+client.close()
 
 if __name__ == "__main__":
     main()

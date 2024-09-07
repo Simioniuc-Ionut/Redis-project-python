@@ -1,4 +1,8 @@
 
+"""
+InvokerCommands Class: Executes commands based
+on the notifications received from the Mediator.
+"""
 class InvokerCommands:
     def __init__(self):
         self._commands = []
