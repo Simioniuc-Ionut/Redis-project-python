@@ -31,7 +31,7 @@ class EventLoop:
             else:
                 # debug
                 print(f"Message received: {message}")
-                  self.send_message_to_receiver(message)
+                self.send_message_to_receiver(message)
 
     def __initiate(self):
         self._mediator = Mediator()
