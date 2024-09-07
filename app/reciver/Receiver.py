@@ -15,8 +15,8 @@ class Receiver:
                 arguments = message.decode().split()[:1]
                 arguments = arguments[1:]
                 print(" arguments length ")
-                print(arguments) # debug
-                for args_length in range(0,arguments):
+                print(arguments.to_int()) # debug
+                for args_length in range(0,arguments.to_int()):
                     arg = message.decode().split()[args_length]
                     print("each arg")
                     print(arg) # debug
