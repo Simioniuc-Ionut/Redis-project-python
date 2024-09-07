@@ -30,27 +30,32 @@ class ConnectionRedis:
             self._instance._client_socket.close()
         self._instance._server_socket.close()
 
-    def send(self, message):
-        """
-        Sends a message to the client.
-        Args:
-        message (bytes): The message to send.
-        """
-        if self._instance._client_socket:
-             self._instance._client_socket.sendall(message)
-        else:
-            print("Error: No client connected.")
-
-    def receive(self, bufsize):
-        """
-        Receives a message from the client.
-        Args:
-           bufsize (int): The maximum amount of data to be received at once.
-        Returns:
-           bytes: The message received.
-        """
-        if self._instance._client_socket:
-            return self._instance._client_socket.recv(bufsize)
-        else:
-            print("Error: No client connected.")
-            return b""
+    # def send(self, message):
+    #     """
+    #     Sends a message to the client.
+    #     Args:
+    #     message (bytes): The message to send.
+    #     """
+    #     if self._instance._client_socket:
+    #          self._instance._client_socket.sendall(message)
+    #     else:
+    #         print("Error: No client connected.")
+    async def send(self, client_socket, message):
+        loop = asyncio.get_running_loop()
+        await loop.sock_sendall(client_socket, message)
+    # def receive(self, bufsize):
+    #     """
+    #     Receives a message from the client.
+    #     Args:
+    #        bufsize (int): The maximum amount of data to be received at once.
+    #     Returns:
+    #        bytes: The message received.
+    #     """
+    #     if self._instance._client_socket:
+    #         return self._instance._client_socket.recv(bufsize)
+    #     else:
+    #         print("Error: No client connected.")
+    #         return b""
+    async def receive(self, client_socket, bufsize):
+        loop = asyncio.get_running_loop()
+        return await loop.sock_recv(client_socket, bufsize)
