@@ -15,13 +15,15 @@ class Receiver:
                 lines = message.decode().split("\r\n")
                 if(lines[0][:1] == "*"): # array
                     num_args = int(lines[0][1:])
+                    # ex : *3\r\n$3\r\nSET\r\n$4\r\nPING\r\n$7\r\nmyvalue\r\n
                     print(" arguments length ")
                     arguments = []
                     index = 1
                     for _ in range(num_args):
-                        length = int(lines[index][1:])  # get the length of the argument
+                        index += 1 # move to the message line
+                        argument = lines[index]  # get the argument
                         arguments.append(argument)
-                        index += 1
+                        index += 1 # move to the next complet line
 
                     print("Arguments:", arguments)  # debug
                     return arguments
