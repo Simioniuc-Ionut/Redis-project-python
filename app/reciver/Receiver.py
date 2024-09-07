@@ -11,6 +11,9 @@ class Receiver:
         self.__client = client
         self.__mediator = mediator
 
+    def ping(self):
+        self.__client.send(b"+PONG\r\n")
+
     def send_message(self, message):
         self.__process_messages(message)
 

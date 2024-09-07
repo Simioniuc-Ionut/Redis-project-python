@@ -7,7 +7,7 @@ class CommandPing(Command):
         self.__receiver = receiver
 
     def execute(self):
-        self.__receiver.send(b"+PONG\r\n")
+        self.__receiver.ping()
 
 
 
