@@ -13,5 +13,11 @@ class ConnectionRedis:
     def accept_client(self):
         return self._client.accept()  # wait for client
 
+    def close(self):
+        """
+        Closes the connection to the Redis server.
+        """
+        self._instance._client.close()
+
     def send(self, message):
         self._instance._client.sendall(message)

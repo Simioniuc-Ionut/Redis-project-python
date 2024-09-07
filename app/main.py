@@ -26,5 +26,7 @@ def main():
     invoker.set_commands([command_ping])
     invoker.execute_commands()
 
+    client.close()
+
 if __name__ == "__main__":
     main()
