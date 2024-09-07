@@ -16,15 +16,14 @@ class EventLoop:
         # Trebuie să fie asincronă
         return await asyncio.get_event_loop().sock_recv(self.client_socket, 1024)
 
-    def send_message_to_receiver(self, message):
+    async def send_message_to_receiver(self, message):
         self._mediator.notify_receiver(message)
 
-
-    async  def start_task(self):
+    async def start_task(self):
         self.__initiate()
         print("Event Loop started")
         while self._is_running:  # here manage communication between server - client
-            message = await self.wait_message_from_receiver() # wait message from client
+            message = await self.wait_message_from_receiver()  # wait message from client
             if not message:  # connection is closed
                 print("Client disconnected")
                 self.client_socket.close()
@@ -32,7 +31,7 @@ class EventLoop:
             else:
                 # debug
                 print(f"Message received: {message}")
-                self.send_message_to_receiver(message)
+                await self.send_message_to_receiver(message)
 
     def __initiate(self):
         self._mediator = Mediator()
@@ -43,4 +42,3 @@ class EventLoop:
         self._mediator.set_invoker(server_invoker)
         # debug
         print("Event Loop initiated")
-
