@@ -3,4 +3,4 @@ class Receiver:
         self.__client = client
 
     def ping(self):
-        self.__client.send("+PONG\r\n")
+        self.__client.send(b"+PONG\r\n")
