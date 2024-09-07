@@ -12,16 +12,18 @@ class Receiver:
                 result = None
                 # debug
                 print(f"Received message: {message.decode()}")
-                arguments = message.decode().split()[:1]
-                arguments = arguments[1:]
-                print(" arguments length ")
-                print(arguments.to_int()) # debug
-                for args_length in range(0,arguments.to_int()):
-                    arg = message.decode().split()[args_length]
-                    print("each arg")
-                    print(arg) # debug
-                    result += arg + "\r\n"
+                lines = message.decode().split("\r\n")
+                if(lines[0][:1] == "*"): # array
+                    num_args = int(lines[0][1:])
+                    print(" arguments length ")
+                    arguments = []
+                    index = 1
+                    for _ in range(num_args):
+                        length = int(lines[index][1:])  # get the length of the argument
+                        arguments.append(argument)
+                        index += 1
 
-                return result
+                    print("Arguments:", arguments)  # debug
+                    return arguments
             else:
                 break
