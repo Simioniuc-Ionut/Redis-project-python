@@ -10,7 +10,7 @@ class InvokerCommands:
     def set_commands(self, commands):
         self._commands = commands
 
-    def execute_commands(self):
+    async def execute_commands(self):
         for command in self._commands:
-            command.execute()
+           await command.execute()
         self._commands.clear()

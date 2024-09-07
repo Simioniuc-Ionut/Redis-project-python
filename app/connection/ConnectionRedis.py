@@ -40,9 +40,9 @@ class ConnectionRedis:
     #          self._instance._client_socket.sendall(message)
     #     else:
     #         print("Error: No client connected.")
-    async def send(self, client_socket, message):
+    async def send(self, message):
         loop = asyncio.get_running_loop()
-        await loop.sock_sendall(client_socket, message)
+        await loop.sock_sendall(self._instance._client_socket, message)
     # def receive(self, bufsize):
     #     """
     #     Receives a message from the client.

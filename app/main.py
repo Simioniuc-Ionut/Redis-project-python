@@ -16,7 +16,7 @@ async def main_loop(server_set):
         if client_socket:
             loop = EventLoop(client_socket)
             print("aici in main loop", client_socket)
-            asyncio.create_task(loop.start_task())  # asincron start task
+            await loop.start_task()  # asincron start task
             # debug
             print("Client dupa async")
 
@@ -25,14 +25,13 @@ async def main_loop(server_set):
         # client.close()
 
 
-# def main():
-#     # You can use print statements as follows for debugging, they'll be visible when running tests.
-#     print("Logs from your program will appear here!")
-# # singleton instance
-# server_set = ConnectionRedis()
-# # Event Loop
-# asyncio.run(main_loop(server_set))
+def main():
+    # You can use print statements as follows for debugging, they'll be visible when running tests.
+    print("Logs from your program will appear here!")
+# singleton instance
+server_set = ConnectionRedis()
+# Event Loop
+asyncio.run(main_loop(server_set))
 
 if __name__ == "__main__":
-    server_set = ConnectionRedis()
-    asyncio.run(main_loop(server_set))
+    main()
