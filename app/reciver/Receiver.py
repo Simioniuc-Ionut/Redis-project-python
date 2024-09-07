@@ -12,12 +12,14 @@ class Receiver:
                 result = None
                 # debug
                 print(f"Received message: {message.decode()}")
+                arguments = []
                 lines = message.decode().split("\r\n")
+
                 if(lines[0][:1] == "*"): # array
+                    arguments = ["*"]  # array
                     num_args = int(lines[0][1:])
                     # ex : *3\r\n$3\r\nSET\r\n$4\r\nPING\r\n$7\r\nmyvalue\r\n
-                    print(" arguments length ")
-                    arguments = []
+
                     index = 1
                     for _ in range(num_args):
                         index += 1 # move to the message line
