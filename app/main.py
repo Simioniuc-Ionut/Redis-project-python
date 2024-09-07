@@ -12,11 +12,13 @@ import socket  # noqa: F401
 async def main_loop(server_set):
     while True:  # manage all connections in concurrent way
         client_socket = await server_set.accept_client()  # asincron wait for client
-        print("aici in main loop" , client_socket)
+
         if client_socket:
             loop = EventLoop(client_socket)
+            print("aici in main loop", client_socket)
             asyncio.create_task(loop.start_task())  # asincron start task
-
+            # debug
+            print("Client dupa async")
 
         # daca clientu lse deconcteaza apelez opresc loop ul si inchid clientul
         # to do
