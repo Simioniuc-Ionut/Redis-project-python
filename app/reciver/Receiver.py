@@ -1,5 +1,3 @@
-from app.utils.Decorators import debug
-from app.utils.Decorators import debug_process_with_dict
 
 """
 Receiver Class:
@@ -8,24 +6,22 @@ The Receiver class reads messages from the client,
   and notifies the Mediator with the parsed arguments.
 """
 
+
 class Receiver:
     def __init__(self, client, mediator):
         self.__client = client
         self.__mediator = mediator
 
-    @debug
     def ping(self):
         self.__client.send(b"+PONG\r\n")
 
-    @debug_process_with_dict
-    def process_messages(self, debug_dict):
+    def process_messages(self):
         while True:
             message = self.__client.recv(1024)  # read up to 1024 bytes
             if message:
                 decoded_message = message.decode()
 
                 # debug
-                debug_dict['decoded_message'] = decoded_message
                 # print(f"Received message: {message.decode()}")
                 arguments = []
                 lines = message.decode().split("\r\n")
@@ -41,8 +37,8 @@ class Receiver:
                         arguments.append(argument)
                         index += 1  # move to the next complet line
 
-                    debug_dict['arguments'] = arguments
-                    # print("Arguments:", arguments)  # debug
+                    # debug
+                    # print("Arguments:", arguments)
                     self.__mediator.notify("*", arguments)
             else:
                 break

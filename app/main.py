@@ -10,10 +10,6 @@ def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!")
 
-
-# Debug dictionary
-debug_dict = {}
-
 client = ConnectionRedis()
 client.accept_client()  # wait for client
 
@@ -25,7 +21,7 @@ mediator.set_receiver(receiver)
 mediator.set_invoker(invoker)
 
 while True:
-    receiver.process_messages(debug_dict=debug_dict)
+    receiver.process_messages()
 
 client.close()
 
