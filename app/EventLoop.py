@@ -37,8 +37,8 @@ class EventLoop:
         print("Event Loop initiated")
 
     def wait_message_from_receiver(self):
-        message = self.__mediator.notify_invoker()
+        message = self._mediator.notify_invoker()
         return message
 
     def send_message_to_receiver(self, message):
-        self.__mediator.notify_receiver(message)
+        self._mediator.notify_receiver(message)
