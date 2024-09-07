@@ -12,13 +12,14 @@ class ConnectionRedis:
             cls._instance._client_socket = None
         return cls._instance
 
-    def accept_client(self):
+    async def accept_client(self):
         # Trebuie să fie asincronă
-        # self._instance._client_socket, _address = await asyncio.get_event_loop().sock_accept(self._instance._server_socket)
-
-        # return self._instance._client_socket  # returnează socketul clientului
-        self._instance._client_socket,_addr = self._instance._server_socket.accept()  # wait for client
-        return self._instance._client_socket,_addr
+        self._instance._client_socket, _address = await asyncio.get_event_loop().sock_accept(self._instance._server_socket)
+        print("Client connected", _address)
+        return self._instance._client_socket  # returnează socketul clientului
+         # old
+        # self._instance._client_socket,_addr = self._instance._server_socket.accept()  # wait for client
+        # return self._instance._client_socket,_addr
     def close(self):
         """
         Closes the connection to the Redis server.

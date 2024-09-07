@@ -22,6 +22,7 @@ class EventLoop:
 
     async  def start_task(self):
         self.__initiate()
+        print("Event Loop started")
         while self._is_running:  # here manage communication between server - client
             message = await self.wait_message_from_receiver() # wait message from client
             if not message:  # connection is closed
