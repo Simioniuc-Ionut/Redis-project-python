@@ -11,13 +11,13 @@ class Receiver:
         self.__client = client
         self.__mediator = mediator
 
-    async def ping(self):
-       await self.__client.send(b"+PONG\r\n")
+    def ping(self):
+        self.__client.send(b"+PONG\r\n")
 
-    async def send_message(self, message):
-        await self.__process_messages(message)
+    def send_message(self, message):
+         self.__process_messages(message)
 
-    async def __process_messages(self, message):
+    def __process_messages(self, message):
          # ex : *3\r\n$3\r\nSET\r\n$4\r\nPING\r\n$7\r\nmyvalue\r\n
         if message:
             # debug
@@ -25,12 +25,12 @@ class Receiver:
             lines = message.decode().split("\r\n")
 
             if lines[0][:1] == "*":  # array
-                await self.__process_array_message(lines)
+                self.__process_array_message(lines)
 
         else:
             print("Error: No message received.")
 
-    async def __process_array_message(self, lines):
+    def __process_array_message(self, lines):
         num_args = int(lines[0][1:])
         arguments = []
         index = 1
@@ -42,4 +42,4 @@ class Receiver:
 
         # debug
         print("Arguments:", arguments)
-        await self.__mediator.process_commands("*", arguments)
+        self.__mediator.process_commands("*", arguments)

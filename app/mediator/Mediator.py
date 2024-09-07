@@ -17,12 +17,12 @@ class Mediator:
     def set_invoker(self, invoker):
         self._invoker = invoker
 
-    async def process_commands(self, sender, event):  # here process commands and send them to invoker
+    def process_commands(self, sender, event):  # here process commands and send them to invoker
         if sender == "*":  # an array with responses
             for response in event:
                 if response == "PING":
                     self._invoker.set_commands([CommandPing(self._receiver)])
                     self._invoker.execute_commands()
 
-    async def notify_receiver(self, message):
-        await self._receiver.send_message(message)
+    def notify_receiver(self, message):
+         self._receiver.send_message(message)

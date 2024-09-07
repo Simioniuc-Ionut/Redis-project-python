@@ -14,10 +14,10 @@ class EventLoop:
 
     async def wait_message_from_receiver(self):
         # Trebuie să fie asincronă
-        return  asyncio.get_event_loop().sock_recv(self.client_socket, 1024)
+        return asyncio.get_event_loop().sock_recv(self.client_socket, 1024)
 
-    async def send_message_to_receiver(self, message):
-       await  self._mediator.notify_receiver(message)
+    def send_message_to_receiver(self, message):
+         self._mediator.notify_receiver(message)
 
     async def start_task(self):
         self.__initiate()
@@ -31,7 +31,7 @@ class EventLoop:
             else:
                 # debug
                 print(f"Message received: {message}")
-                await self.send_message_to_receiver(message)
+                self.send_message_to_receiver(message)
 
     def __initiate(self):
         self._mediator = Mediator()
