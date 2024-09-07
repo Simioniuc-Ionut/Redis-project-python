@@ -37,7 +37,7 @@ class ConnectionRedis:
         message (bytes): The message to send.
         """
         if self._instance._client_socket:
-              self._instance._client_socket.sendall(message)
+             self._instance._client_socket.sendall(message)
         else:
             print("Error: No client connected.")
 
