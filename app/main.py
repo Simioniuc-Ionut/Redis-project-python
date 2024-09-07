@@ -11,8 +11,9 @@ import socket  # noqa: F401
 
 async def main_loop(server_set):
     while True:  # manage all connections in concurrent way
-        client_socket = await server_set.accept_client()  # asincron wait for client
+        client_socket = server_set.accept_client()  # asincron wait for client
         if client_socket is not None:
+            print("Client connected " , client_socket, " ", server_set)
             loop = EventLoop(client_socket)
             asyncio.create_task(loop.start_task())  # asincron start task
 

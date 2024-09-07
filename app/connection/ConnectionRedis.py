@@ -12,7 +12,7 @@ class ConnectionRedis:
             cls._instance._client_socket = None
         return cls._instance
 
-    async def accept_client(self):
+    def accept_client(self):
         # Trebuie să fie asincronă
         self._instance._client_socket, _address = self._instance._server_socket.accept()  # wait for client
         print("Client connected", _address)
