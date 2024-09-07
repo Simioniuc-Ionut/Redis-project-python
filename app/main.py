@@ -26,7 +26,7 @@ def main():
     command = None
     while True:
         responde = receiver.process_messages()
-        print("in main command loop " + responde) # debug
+        print("in main command loop ",responde) # debug
         if responde[0] == "*": # an array response
             for r in responde:
                 if r == "PING":
