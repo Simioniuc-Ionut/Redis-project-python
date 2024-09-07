@@ -17,15 +17,14 @@ def main():
     client = ConnectionRedis()
     client.accept_client()  # wait for client
 
-    receiver = Receiver()
-
+    receiver = Receiver(client)
+    client
     #setez comanda
     command_ping = CommandPing(receiver)
 
     invoker = InvokerCommands()
     invoker.set_commands([command_ping])
-    response = invoker.execute_commands()
-    print(response) # This will print the response "+PONG\r\n"
+    invoker.execute_commands()
 
 if __name__ == "__main__":
     main()
