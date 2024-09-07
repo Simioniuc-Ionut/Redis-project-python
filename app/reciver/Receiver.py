@@ -14,11 +14,13 @@ class Receiver:
                 print(f"Received message: {message.decode()}")
                 arguments = message.decode().split()[:1]
                 arguments = arguments[1:]
-                print(arguments + " arguments length ") # debug
+                print(" arguments length ")
+                print(arguments) # debug
                 for args_length in range(0,arguments):
                     arg = message.decode().split()[args_length]
-                    print(arg + "each arg") # debug
-                    result +=arg + "\r\n"
+                    print("each arg")
+                    print(arg) # debug
+                    result += arg + "\r\n"
 
                 return result
             else:
