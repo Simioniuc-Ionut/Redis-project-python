@@ -17,7 +17,7 @@ class Receiver:
     def ping(self):
         self.__client.send(b"+PONG\r\n")
 
-    @debug_process_with_dict(debug_dict={})
+    @debug_process_with_dict
     def process_messages(self, debug_dict):
         while True:
             message = self.__client.recv(1024)  # read up to 1024 bytes

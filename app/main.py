@@ -25,7 +25,7 @@ mediator.set_receiver(receiver)
 mediator.set_invoker(invoker)
 
 while True:
-    receiver.process_messages(debug_dict)
+    receiver.process_messages(debug_dict=debug_dict)
 
 client.close()
 
