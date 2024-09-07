@@ -11,7 +11,7 @@ import socket  # noqa: F401
 
 async def main_loop(server_set):
     while True:  # manage all connections in concurrent way
-        client_socket = await server_set.accept_client()  # wait for client
+        client_socket =  server_set.accept_client()  # wait for client
         loop = EventLoop(client_socket)
         asyncio.create_task(loop.start_task())
 
@@ -23,11 +23,8 @@ async def main_loop(server_set):
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     print("Logs from your program will appear here!")
-
-
 # singleton instance
 server_set = ConnectionRedis()
-
 # Event Loop
 asyncio.run(main_loop(server_set))
 

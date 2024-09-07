@@ -8,16 +8,15 @@ from app.reciver.Receiver import Receiver
 class EventLoop:
     def __init__(self, client_socket):
         self._is_running = True
-        self.events = {} # handle different types of events
+        self.events = {}  # handle different types of events
         self.client_socket = client_socket
-
 
     def start_task(self):
         self.__initiate()
 
-        while self._is_running : # here manage communication between server - client
+        while self._is_running:  # here manage communication between server - client
             message = self.wait_message_from_receiver()
-            if not message: #  connection is closed
+            if not message:  # connection is closed
                 print("Client disconnected")
                 self.client_socket.close()
                 self._is_running = False
