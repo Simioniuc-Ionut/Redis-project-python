@@ -15,15 +15,20 @@ class Receiver:
     def ping(self):
         self.__client.send(b"+PONG\r\n")
 
-    @debug
-    def process_messages(self):
+    @debug_process_with_dict(debug_dict={})
+    def process_messages(self, debug_dict):
         while True:
             message = self.__client.recv(1024) # read up to 1024 bytes
             if message:
-               arguments = []
-               lines = message.decode().split("\r\n")
+                decoded_message = message.decode()
 
-               if(lines[0][:1] == "*"): # array
+                # debug
+                debug_dict['decoded_message'] = decoded_message
+                # print(f"Received message: {message.decode()}")
+                arguments = []
+                lines = message.decode().split("\r\n")
+
+                if(lines[0][:1] == "*"): # array
                     num_args = int(lines[0][1:])
                     # ex : *3\r\n$3\r\nSET\r\n$4\r\nPING\r\n$7\r\nmyvalue\r\n
 
@@ -34,6 +39,8 @@ class Receiver:
                         arguments.append(argument)
                         index += 1 # move to the next complet line
 
+                    debug_dict['arguments'] = arguments
+                    # print("Arguments:", arguments)  # debug
                     self.__mediator.notify("*", arguments)
             else:
                 break
