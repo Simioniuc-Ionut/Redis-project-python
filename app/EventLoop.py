@@ -17,7 +17,7 @@ class EventLoop:
         return await asyncio.get_event_loop().sock_recv(self.client_socket, 1024)
 
     async def send_message_to_receiver(self, message):
-        self._mediator.notify_receiver(message)
+       await self._mediator.notify_receiver(message)
 
     async def start_task(self):
         self.__initiate()

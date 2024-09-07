@@ -21,6 +21,7 @@ class ConnectionRedis:
          # old
         # self._instance._client_socket,_addr = self._instance._server_socket.accept()  # wait for client
         # return self._instance._client_socket,_addr
+
     def close(self):
         """
         Closes the connection to the Redis server.
@@ -29,14 +30,14 @@ class ConnectionRedis:
             self._instance._client_socket.close()
         self._instance._server_socket.close()
 
-    def send(self, message):
+    async def send(self, message):
         """
         Sends a message to the client.
         Args:
         message (bytes): The message to send.
         """
         if self._instance._client_socket:
-            self._instance._client_socket.sendall(message)
+            await self._instance._client_socket.sendall(message)
         else:
             print("Error: No client connected.")
 
