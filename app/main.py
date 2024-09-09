@@ -2,7 +2,6 @@ import asyncio
 
 from app.EventLoop import EventLoop
 from app.connection.ConnectionRedis import ConnectionRedis
-from app.mediator.Mediator import Mediator
 from app.command_pattern.commands.CommandPing.CommandPing import CommandPing
 from app.command_pattern.invoker.InvokerCommands import InvokerCommands
 from app.reciver.Receiver import Receiver
@@ -12,13 +11,11 @@ import socket  # noqa: F401
 async def main_loop(server_set):
     while True:  # manage all connections in concurrent way
         client_socket = await server_set.accept_client()  # asincron wait for client
-
-        if client_socket:
-            loop = EventLoop(client_socket)
-            print("aici in main loop", client_socket)
-            asyncio.create_task(await loop.start_task())  # asincron start task
-            # debug
-            print("Client dupa async")
+        loop = EventLoop(client_socket)
+        print("aici in main loop", client_socket)
+        asyncio.create_task(loop.start_task())  # asincron start task
+        # debug
+        print("Client dupa async")
 
         # daca clientu lse deconcteaza apelez opresc loop ul si inchid clientul
         # to do

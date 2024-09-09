@@ -58,4 +58,4 @@ class ConnectionRedis:
     #         return b""
     async def receive(self, client_socket, bufsize):
         loop = asyncio.get_running_loop()
-        return await loop.sock_recv(client_socket, bufsize)
+        return  loop.sock_recv(client_socket, bufsize)

@@ -8,16 +8,15 @@ from app.reciver.Receiver import Receiver
 class EventLoop:
     def __init__(self, client_socket):
         self._is_running = True
-        self.events = {}  # handle different types of events
         self.client_socket = client_socket
-        self._mediator = None
-
+        self.client_recevier = None
+        self.server_invoker = None
     async def wait_message_from_receiver(self):
         # Trebuie să fie asincronă
-         return await asyncio.get_event_loop().sock_recv(self.client_socket, 1024)
+        return await asyncio.get_event_loop().sock_recv(self.client_socket, 1024)
 
     async def send_message_to_receiver(self, message):
-        await self._mediator.notify_receiver(message)
+        await self.client_receiver.send_message(message)
 
     async def start_task(self):
         self.__initiate()
@@ -35,11 +34,7 @@ class EventLoop:
                     await self.send_message_to_receiver(message)
 
     def __initiate(self):
-        self._mediator = Mediator()
-        client_receiver = Receiver(self.client_socket, self._mediator)
-        server_invoker = InvokerCommands()
-
-        self._mediator.set_receiver(client_receiver)
-        self._mediator.set_invoker(server_invoker)
+        self.server_invoker = InvokerCommands()
+        self.client_receiver = Receiver(self.client_socket, self.server_invoker)
         # debug
         print("Event Loop initiated")
