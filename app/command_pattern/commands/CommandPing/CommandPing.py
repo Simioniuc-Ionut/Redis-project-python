@@ -1,13 +1,12 @@
 # Commands
-from app.command_pattern.commands.CommandInterface import Command
+from app.command_pattern.commands.Command import Command
 
 
 class CommandPing(Command):
     def __init__(self, receiver):
-        self.__receiver = receiver
+        self.receiver = receiver
 
     async def execute(self):
-        await self.__receiver.ping()
-
+        await self.receiver.send_message(b"+PONG\r\n")
 
 

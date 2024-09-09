@@ -4,14 +4,14 @@ on the notifications received from the Mediator.
 """
 
 
-class InvokerCommands:
+class Invoker:
     def __init__(self):
         self._commands = []
 
-    def set_commands(self, commands):
-        self._commands = commands
+    def add_command(self, command):
+        self._commands.append(command)
 
-    def execute_commands(self):
+    async def execute_commands(self):
         for command in self._commands:
-            command.execute()
+            await command.execute()
         self._commands.clear()
