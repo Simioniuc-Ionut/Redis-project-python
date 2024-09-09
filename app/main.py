@@ -1,34 +1,21 @@
 import asyncio
-
-from app.EventLoop import EventLoop
 from app.connection.ConnectionRedis import ConnectionRedis
-from app.command_pattern.commands.CommandPing.CommandPing import CommandPing
-from app.command_pattern.invoker.InvokerCommands import InvokerCommands
-from app.reciver.Receiver import Receiver
-import socket  # noqa: F401
+from EventLoop import EventLoop
 
 
 async def main_loop(server_set):
-    while True:  # manage all connections in concurrent way
-        client_socket = await server_set.accept_client()  # asincron wait for client
+    while True:
+        client_socket = await server_set.accept_client()
         loop = EventLoop(client_socket)
-        print("aici in main loop", client_socket)
-        asyncio.create_task(loop.start_task())  # asincron start task
-        # debug
-        print("Client dupa async")
-
-        # daca clientu lse deconcteaza apelez opresc loop ul si inchid clientul
-        # to do
-        # client.close()
+        asyncio.create_task(loop.start())  # Handle client connection asynchronously
+        print("Client handled asynchronously")
 
 
 def main():
-    # You can use print statements as follows for debugging, they'll be visible when running tests.
-    print("Logs from your program will appear here!")
-# singleton instance
-server_set = ConnectionRedis()
-# Event Loop
-asyncio.run(main_loop(server_set))
+    print("Starting server...")
+    server_set = ConnectionRedis()
+    asyncio.run(main_loop(server_set))
+
 
 if __name__ == "__main__":
     main()
