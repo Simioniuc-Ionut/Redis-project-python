@@ -1,6 +1,6 @@
 import asyncio
 from app.connection.ConnectionRedis import ConnectionRedis
-from EventLoop import EventLoop
+from app.EventLoop import EventLoop
 
 
 async def main_loop(server_set):
