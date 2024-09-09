@@ -1,13 +1,11 @@
 import asyncio
 
-from app.command_pattern.commands.CommandECHO import CommandECHO
-from app.command_pattern.commands.CommandPing import CommandPing
-
+from app.command_pattern.ProcessCommands import process_ping, process_echo, process_set, process_get
 
 class Receiver:
     def __init__(self, client_socket):
         self.client_socket = client_socket
-
+        self.own_map = {}
     async def receive_message(self):
         loop = asyncio.get_running_loop()
         return await loop.sock_recv(self.client_socket, 1024)
@@ -39,17 +37,17 @@ class Receiver:
             index += 1
 
         print("Arguments:", arguments)
-        await self._process_commands(arguments, invoker)
+        await self._handle_commands(arguments, invoker)
 
-    async def _process_commands(self, arguments, invoker):
-        if "PING" in map(str.upper, arguments):  # for case-sensitive
-            invoker.add_command(CommandPing(self))
-            await invoker.execute_commands()
-        elif "ECHO" in map(str.upper, arguments):  # for case-sensitive
-            # BUlk string : EX : $5\r\nhello\r\n
-            message = ""
-            for msg in arguments:
-                if msg != "ECHO":
-                    message = "$" + str(len(msg)) + "\r\n" + msg + "\r\n"
-            invoker.add_command(CommandECHO(self, message))
-            await invoker.execute_commands()
+    async def _handle_commands(self, arguments, invoker):
+        command = arguments[0].upper()
+        if command == "PING":
+            await process_ping(self, invoker)
+        elif command == "ECHO":
+            await process_echo(self, arguments, invoker)
+        elif command == "SET":
+            await process_set(self, arguments, invoker)
+        elif command == "GET":
+            await process_get(self, arguments, invoker)
+
+
