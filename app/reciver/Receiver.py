@@ -50,4 +50,3 @@ class Receiver:
         elif command == "GET":
             await process_get(self, arguments, invoker)
 
-

@@ -1,10 +1,11 @@
 from app.command_pattern.commands.Command import Command
 
+
 class CommandGET(Command):
-    def __init__(self, receiver, map, key):
+    def __init__(self, receiver, receiver_own_map, key):
         self.receiver = receiver
         self.key = key
-        self.map = map
+        self.map = receiver_own_map
 
     async def execute(self):
         if self.key not in self.map:

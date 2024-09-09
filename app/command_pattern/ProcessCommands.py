@@ -1,5 +1,6 @@
 from app.command_pattern.commands.CommandECHO import CommandECHO
 from app.command_pattern.commands.CommandGET import CommandGET
+from app.command_pattern.commands.CommandPX import CommandPX
 from app.command_pattern.commands.CommandPing import CommandPing
 from app.command_pattern.commands.CommandSET import CommandSET
 
@@ -7,6 +8,8 @@ from app.command_pattern.commands.CommandSET import CommandSET
 async def process_ping(receiver, invoker):
     invoker.add_command(CommandPing(receiver))
     await invoker.execute_commands()
+
+
 async def process_echo(receiver, arguments, invoker):
     # BUlk string : EX : $5\r\nhello\r\n
     message = ""
@@ -21,6 +24,16 @@ async def process_set(receiver, arguments, invoker):
     key = arguments[1]
     value = arguments[2]
     invoker.add_command(CommandSET(receiver, key, value, receiver.own_map))
+
+    # options
+    if len(arguments) > 3:
+        for i in range(3, len(arguments)):
+            option = arguments[i].upper()
+            if option == "PX":
+                # set the key with a timeout in milliseconds
+                milliseconds = arguments[i + 1]
+                invoker.add_command(CommandPX(receiver, key, milliseconds, receiver.own_map))
+
     await invoker.execute_commands()
 
 
