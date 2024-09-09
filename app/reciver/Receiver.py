@@ -42,10 +42,10 @@ class Receiver:
         await self._process_commands(arguments, invoker)
 
     async def _process_commands(self, arguments, invoker):
-        if "PING" in arguments:
+        if "PING" in map(str.upper, arguments):  # for case-sensitive
             invoker.add_command(CommandPing(self))
             await invoker.execute_commands()
-        elif "ECHO" in arguments:
+        elif "ECHO" in map(str.upper, arguments):  # for case-sensitive
             # BUlk string : EX : $5\r\nhello\r\n
             message = ""
             for msg in arguments:
