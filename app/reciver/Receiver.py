@@ -1,6 +1,7 @@
 import asyncio
 
-from app.command_pattern.commands.CommandPing.CommandPing import CommandPing
+from app.command_pattern.commands.CommandECHO import CommandECHO
+from app.command_pattern.commands.CommandPing import CommandPing
 
 
 class Receiver:
@@ -43,4 +44,12 @@ class Receiver:
     async def _process_commands(self, arguments, invoker):
         if "PING" in arguments:
             invoker.add_command(CommandPing(self))
+            await invoker.execute_commands()
+        elif "ECHO" in arguments:
+            # BUlk string : EX : $5\r\nhello\r\n
+            message = ""
+            for msg in arguments:
+                if msg != "ECHO":
+                    message = "$" + str(len(msg)) + "\r\n" + msg + "\r\n"
+            invoker.add_command(CommandECHO(self, message))
             await invoker.execute_commands()
