@@ -1,6 +1,7 @@
 import asyncio
 
-from app.command_pattern.ProcessCommands import process_ping, process_echo, process_set, process_get
+from app.command_pattern.ProcessCommands import process_ping, process_echo, process_set, process_get, process_config_get
+
 
 class Receiver:
     def __init__(self, client_socket):
@@ -13,7 +14,7 @@ class Receiver:
     async def send_message(self, message):
         loop = asyncio.get_running_loop()
         await loop.sock_sendall(self.client_socket, message)
-        # is non blocking. recv is blocking
+        # is non-blocking. recv is blocking
         # and will interrupt execution
 
     async def process_message(self, message, invoker):
@@ -49,4 +50,5 @@ class Receiver:
             await process_set(self, arguments, invoker)
         elif command == "GET":
             await process_get(self, arguments, invoker)
-
+        elif command == "CONFIG" and arguments[1].upper() == "GET":
+            await process_config_get(self, arguments[2], invoker)

@@ -1,3 +1,4 @@
+from app.command_pattern.commands.CommandConfigGET import CommandConfigGet
 from app.command_pattern.commands.CommandECHO import CommandECHO
 from app.command_pattern.commands.CommandGET import CommandGET
 from app.command_pattern.commands.CommandPX import CommandPX
@@ -40,4 +41,9 @@ async def process_set(receiver, arguments, invoker):
 async def process_get(receiver, arguments, invoker):
     key = arguments[1]
     invoker.add_command(CommandGET(receiver, receiver.own_map, key))
+    await invoker.execute_commands()
+
+
+async def process_config_get(receiver, get_name, invoker):
+    invoker.add_command(CommandConfigGet(receiver, get_name))
     await invoker.execute_commands()
