@@ -61,7 +61,7 @@ def load_rdb_file(directory, filename):
 
 
 def _process_rdb_file(content):
-    __process_rdb_header(content) # header section of the RDB file
+    __process_rdb_header(content)  # header section of the RDB file
 
 
 def __process_rdb_header(content):
