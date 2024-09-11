@@ -47,10 +47,7 @@ def load_rdb_file(directory, filename):
     rdb_file_path = os.path.join(directory, filename)
     if os.path.exists(rdb_file_path):
         print(f"Loading RDB file from {rdb_file_path}")
-        # Deschide și parcurge fișierul RDB
-        # Aici trebuie să implementezi logica ta de încărcare a datelor
-        # și actualizarea cheilor și valorilor în memorie.
-        # De exemplu:
+        # Open and process file RDB
         with open(rdb_file_path, "rb") as file:  # open file in rb (read in binary mode)
             content = file.read()  # read the content of the file
             print("content is ", content)
