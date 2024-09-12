@@ -2,7 +2,7 @@ from app.command_pattern.commands.CommandConfigGET import CommandConfigGet
 from app.command_pattern.commands.CommandECHO import CommandECHO
 from app.command_pattern.commands.CommandGET import CommandGET
 from app.command_pattern.commands.CommandKEYS import CommandKEYS
-from app.command_pattern.commands.CommandPX import CommandPX
+from app.command_pattern.commands.CommandEXPIRE import CommandExpire
 from app.command_pattern.commands.CommandPing import CommandPing
 from app.command_pattern.commands.CommandSET import CommandSET
 
@@ -33,9 +33,13 @@ async def process_set(receiver, arguments, invoker):
             option = arguments[i].upper()
             if option == "PX":
                 # set the key with a timeout in milliseconds
-                milliseconds = arguments[i + 1]
-                invoker.add_command(CommandPX(receiver, key, milliseconds, receiver.own_map))
-
+                milliseconds = int(arguments[i + 1])
+                print("Milliseconds:", milliseconds)
+                invoker.add_command(CommandExpire(receiver, key, milliseconds, receiver.own_map, False, False))
+            elif option == "EX":
+                # set the key with a timeout in seconds
+                seconds = int(arguments[i + 1])
+                invoker.add_command(CommandExpire(receiver, key, seconds, receiver.own_map, True, False))
     await invoker.execute_commands()
 
 

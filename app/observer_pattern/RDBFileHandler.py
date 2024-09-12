@@ -3,6 +3,9 @@ import os
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from app import Globals
+from app.command_pattern.commands.CommandEXPIRE import CommandExpire
+
+
 class RDBFileHandler(FileSystemEventHandler):
     def __init__(self, filename, callback):
         self.filename = filename
@@ -104,10 +107,16 @@ def _process_rdb_file(content):
             # elif flag_byte == 0x01:  # list value
             #    .
         elif byte == 0xFC or byte == 0xFD:  # timestamp expiry in milliseconds / seconds
+            if byte == 0xFC:
+                is_seconds = False
+            else:
+                is_seconds = True
             offset += 1
-            expiry, offset = __decode_size(content, offset)
-            print("Expiry is:", expiry)
-            # to do : implement the expiry logic
+            expire_time_remaining, offset = __decode_little_endiana(content, offset)
+            print("Expiry is:", expire_time_remaining)
+
+            wait_expire_time(expire_time_remaining, Globals.global_keys, is_seconds)
+            print("Time expired")
         elif byte == 0xFF:  # END OF FILE section
             offset += 1
             remaining_content = content[offset:]
@@ -175,8 +184,20 @@ def __decode_string(content, offset):
     """
     string_length, offset = __decode_size(content, offset)  # Decode the length of the string
     if string_length == -1:  # special case for redis-bits
-        string_value = content[offset-1] # Extract the redis-bits
+        string_value = content[offset - 1]  # Extract the redis-bits
     else:
         string_value = content[offset:offset + string_length].decode('utf-8')  # Extract the string
         offset += string_length  # Move the offset forward
     return string_value, offset
+
+
+def __decode_little_endiana(content, offset):
+    str_length_of_time, offset = __decode_size(content, offset)
+    value = int.from_bytes(content[offset: offset + str_length_of_time], 'little')
+    offset += str_length_of_time
+    return value, offset
+
+
+async def wait_expire_time(expire_time_remaining, keys , is_seconds):
+    remaining_time = CommandExpire(None, None, expire_time_remaining, keys, is_seconds, True)
+    await remaining_time.execute()
