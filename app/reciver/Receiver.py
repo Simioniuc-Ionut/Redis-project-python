@@ -1,12 +1,13 @@
 import asyncio
 
-from app.command_pattern.ProcessCommands import process_ping, process_echo, process_set, process_get, process_config_get
+from app.command_pattern.ProcessCommands import process_ping, process_echo, process_set, process_get, process_config_get, process_keys
 
 
 class Receiver:
-    def __init__(self, client_socket):
+    def __init__(self, client_socket, keys):
         self.client_socket = client_socket
-        self.own_map = {}
+        self.own_map = keys
+
     async def receive_message(self):
         loop = asyncio.get_running_loop()
         return await loop.sock_recv(self.client_socket, 1024)
@@ -52,3 +53,6 @@ class Receiver:
             await process_get(self, arguments, invoker)
         elif command == "CONFIG" and arguments[1].upper() == "GET":
             await process_config_get(self, arguments[2], invoker)
+        elif command == "KEYS":
+            await process_keys(self, arguments, invoker)
+

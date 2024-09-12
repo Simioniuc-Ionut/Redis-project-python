@@ -10,7 +10,8 @@ from app import Globals
 async def main_loop(server_set):
     while True:
         client_socket = await server_set.accept_client()
-        loop = EventLoop(client_socket)
+        print("Globals keys " , Globals.global_keys)
+        loop = EventLoop(client_socket, Globals.global_keys)
         asyncio.create_task(loop.start())  # Handle client asynchronously
         # print("Client handled asynchronously")
 
@@ -28,12 +29,13 @@ def main():
     Globals.global_dir = args.dir
     Globals.global_dbfilename = args.dbfilename
 
-    # Load the RDB file initially (if it exists)
-    load_rdb_file(Globals.global_dir, Globals.global_dbfilename)
+    if Globals.global_dir and Globals.global_dbfilename:
+        # Load the RDB file initially (if it exists)
+        load_rdb_file(Globals.global_dir, Globals.global_dbfilename)
 
-    # Start monitoring the directory for changes
-    observer = start_monitoring_directory(Globals.global_dir, Globals.global_dbfilename,
-                                          lambda: load_rdb_file(Globals.global_dir, Globals.global_dbfilename))
+        # Start monitoring the directory for changes
+        observer = start_monitoring_directory(Globals.global_dir, Globals.global_dbfilename,
+                                              lambda: load_rdb_file(Globals.global_dir, Globals.global_dbfilename))
 
     # Start the main loop
     server_set = ConnectionRedis()

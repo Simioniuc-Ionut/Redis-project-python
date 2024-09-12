@@ -9,3 +9,5 @@
 set -e # Exit on failure
 
 # (This file is empty since Python programs don't use a compile step)
+# Here i install locally modules
+pip install watchdog

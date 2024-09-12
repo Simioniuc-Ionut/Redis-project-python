@@ -4,9 +4,9 @@ from app.command_pattern.invoker.Invoker import Invoker
 
 
 class EventLoop:
-    def __init__(self, client_socket):
+    def __init__(self, client_socket, keys):
         self.client_socket = client_socket
-        self.receiver = Receiver(client_socket)
+        self.receiver = Receiver(client_socket, keys)
         self.invoker = Invoker()
         self._is_running = True
 

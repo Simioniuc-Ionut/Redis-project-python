@@ -1,6 +1,7 @@
 from app.command_pattern.commands.CommandConfigGET import CommandConfigGet
 from app.command_pattern.commands.CommandECHO import CommandECHO
 from app.command_pattern.commands.CommandGET import CommandGET
+from app.command_pattern.commands.CommandKEYS import CommandKEYS
 from app.command_pattern.commands.CommandPX import CommandPX
 from app.command_pattern.commands.CommandPing import CommandPing
 from app.command_pattern.commands.CommandSET import CommandSET
@@ -46,4 +47,10 @@ async def process_get(receiver, arguments, invoker):
 
 async def process_config_get(receiver, get_name, invoker):
     invoker.add_command(CommandConfigGet(receiver, get_name))
+    await invoker.execute_commands()
+
+
+async def process_keys(receiver, arguments, invoker):
+    pattern = arguments[1]
+    invoker.add_command(CommandKEYS(receiver, pattern))
     await invoker.execute_commands()
