@@ -95,17 +95,20 @@ def _process_rdb_file(content):
             expires_size, offset = __decode_size(content, offset)
             print("Expires size is:", expires_size)
 
-            flag_byte = content[offset]  # flag byte indicating the value type
-            if flag_byte == 0x00:  # string value
-                offset += 1  # Move past the flag byte
-                key, offset = __decode_string(content, offset)  # Decode the key
-                value, offset = __decode_string(content, offset)  # Decode the value
+            remained_hash_table = hash_table_size
+            while remained_hash_table > 0:
+                flag_byte = content[offset]  # flag byte indicating the value type
+                if flag_byte == 0x00:  # string value
+                    offset += 1  # Move past the flag byte
+                    key, offset = __decode_string(content, offset)  # Decode the key
+                    value, offset = __decode_string(content, offset)  # Decode the value
 
-                print(f"Key: {key}, Value: {value}")
-                Globals.global_keys[key] = value  # Store key-value in the dictionary
-            # Add additional handling for other types if needed, like:
-            # elif flag_byte == 0x01:  # list value
-            #    .
+                    print(f"Key: {key}, Value: {value}")
+                    Globals.global_keys[key] = value  # Store key-value in the dictionary
+                # Add additional handling for other types if needed, like:
+                # elif flag_byte == 0x01:  # list value
+                #    .
+                remained_hash_table -= 1
         elif byte == 0xFC or byte == 0xFD:  # timestamp expiry in milliseconds / seconds
             if byte == 0xFC:
                 is_seconds = False
