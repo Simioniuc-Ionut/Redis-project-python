@@ -35,11 +35,11 @@ async def process_set(receiver, arguments, invoker):
                 # set the key with a timeout in milliseconds
                 milliseconds = int(arguments[i + 1])
                 print("Milliseconds:", milliseconds)
-                invoker.add_command(CommandExpire(receiver, key, milliseconds, receiver.own_map, False, False))
+                invoker.add_command(CommandExpire(receiver, key, milliseconds, receiver.own_map, False))
             elif option == "EX":
                 # set the key with a timeout in seconds
                 seconds = int(arguments[i + 1])
-                invoker.add_command(CommandExpire(receiver, key, seconds, receiver.own_map, True, False))
+                invoker.add_command(CommandExpire(receiver, key, seconds, receiver.own_map, True))
     await invoker.execute_commands()
 
 

@@ -1,5 +1,6 @@
 import time
 import os
+import threading
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from app import Globals
@@ -45,7 +46,7 @@ def start_monitoring_directory(directory, filename, callback):
     return observer  # return the observer object to allow stopping it later
 
 
-def load_rdb_file(directory, filename):
+async def load_rdb_file(directory, filename):
     rdb_file_path = os.path.join(directory, filename)
     if os.path.exists(rdb_file_path):
         print(f"Loading RDB file from {rdb_file_path}")
@@ -53,13 +54,13 @@ def load_rdb_file(directory, filename):
         with open(rdb_file_path, "rb") as file:  # open file in rb (read in binary mode)
             content = file.read()  # read the content of the file
             print("content is ", content)
-            _process_rdb_file(content)
+            await _process_rdb_file(content)
 
     else:
         print(f"RDB file {rdb_file_path} not found.")
 
 
-def _process_rdb_file(content):
+async def _process_rdb_file(content):
     __process_header(content)  # header section of the RDB file
     offset = 9  # cursor to keep track of the current position in the content
     # keys = {}  # dictionary to store the keys and their values
@@ -96,7 +97,14 @@ def _process_rdb_file(content):
             print("Expires size is:", expires_size)
 
             remained_hash_table = hash_table_size
-            while remained_hash_table > 0:
+            remained_expire_table = expires_size
+            expire_time = 0
+            is_seconds = False
+            # Loop through the whole hash table
+            while remained_hash_table > 0 or remained_expire_table > 0:
+                # print("In while", hex(byte))
+                print("Remained hash table is ", remained_hash_table, " remained expire table is ",
+                      remained_expire_table)
                 flag_byte = content[offset]  # flag byte indicating the value type
                 if flag_byte == 0x00:  # string value
                     offset += 1  # Move past the flag byte
@@ -105,21 +113,25 @@ def _process_rdb_file(content):
 
                     print(f"Key: {key}, Value: {value}")
                     Globals.global_keys[key] = value  # Store key-value in the dictionary
+                    remained_hash_table -= 1  # Decrement the remaining hash table size
+                    if expire_time != 0:  # we have expired UNIX timestamp
+                        # print("Expire UNIX timestamp is ", expire_time, " is seconds ", is_seconds)
+                        await wait_expire_time(expire_time, key, Globals.global_keys, is_seconds)
+                        # print("After waiting for expire time")
+                        expire_time = 0
                 # Add additional handling for other types if needed, like:
                 # elif flag_byte == 0x01:  # list value
                 #    .
-                remained_hash_table -= 1
-        elif byte == 0xFC or byte == 0xFD:  # timestamp expiry in milliseconds / seconds
-            if byte == 0xFC:
-                is_seconds = False
-            else:
-                is_seconds = True
-            offset += 1
-            expire_time_remaining, offset = __decode_little_endiana(content, offset)
-            print("Expiry is:", expire_time_remaining)
-
-            wait_expire_time(expire_time_remaining, Globals.global_keys, is_seconds)
-            print("Time expired")
+                elif flag_byte == 0xFC or flag_byte == 0xFD:  # timestamp expiry in milliseconds / seconds
+                    if flag_byte == 0xFC:  # 8 bytes long
+                        is_seconds = False
+                    else:
+                        is_seconds = True  # 4 bytes int
+                    offset += 1
+                    expire_time_remaining, offset = __decode_little_endian(content, offset, is_seconds)
+                    expire_time = expire_time_remaining
+                    remained_expire_table -= 1
+            # print("Out of while")
         elif byte == 0xFF:  # END OF FILE section
             offset += 1
             remaining_content = content[offset:]
@@ -144,28 +156,28 @@ def __decode_size(content, offset):
     Returns the size and the new offset after reading the value.
     """
     first_byte = content[offset]
-    # print(f"Decoding size, first_byte: {first_byte:02x}, offset: {offset}")  # Debug info
+    print(f"Decoding size, first_byte: {first_byte:02x}, offset: {offset}")  # Debug info
 
     if first_byte >> 6 == 0b00:
         # The value is encoded in the remaining 6 bits of the first byte
         value = first_byte & 0b00111111
         offset += 1
-        # print(f"Decoded size (6-bit): {value}, new offset: {offset}")  # Debug info
+        print(f"Decoded size (6-bit): {value}, new offset: {offset}")  # Debug info
     elif first_byte >> 6 == 0b01:
         # The value is encoded in the remaining 6 bits of the first byte + 8 bits of the second byte
         value = ((first_byte & 0b00111111) << 8) | content[offset + 1]
         offset += 2
-        # print(f"Decoded size (14-bit): {value}, new offset: {offset}")  # Debug info
+        print(f"Decoded size (14-bit): {value}, new offset: {offset}")  # Debug info
     elif first_byte >> 6 == 0b10:
         # The value is encoded in the next 4 bytes
         value = int.from_bytes(content[offset + 1:offset + 5], 'big')
         offset += 5
-        # print(f"Decoded size (32-bit): {value}, new offset: {offset}")  # Debug info
+        print(f"Decoded size (32-bit): {value}, new offset: {offset}")  # Debug info
     elif first_byte == 0x0A:  # Length of previous entry case
         print(f"Previous entry length marker found at offset {offset}, byte: {first_byte:02x}")
         prev_length = first_byte  # Length is indicated by byte 0x0A
         offset += prev_length  # Move offset forward by the indicated length (10 in this case)
-        # print(f"Skipping {prev_length} bytes, new offset: {offset}")     # Debug info
+        print(f"Skipping {prev_length} bytes, new offset: {offset}")  # Debug info
         value = 0
     elif first_byte == 0xC0:  # Special case for redis-bits
         offset += 1  # Move past the C0 byte
@@ -194,13 +206,39 @@ def __decode_string(content, offset):
     return string_value, offset
 
 
-def __decode_little_endiana(content, offset):
-    str_length_of_time, offset = __decode_size(content, offset)
-    value = int.from_bytes(content[offset: offset + str_length_of_time], 'little')
+# time stamp is decode in little endian
+def __decode_little_endian(content, offset, is_seconds):
+    if is_seconds:
+        # seconds , unsigned int 32 bits
+        str_length_of_time = 4
+        value = int.from_bytes(content[offset: offset + str_length_of_time], 'little', signed=False)
+    else:
+        # milliseconds long
+        str_length_of_time = 8
+        value = int.from_bytes(content[offset: offset + str_length_of_time], 'little', signed=False)
+    # value is in UNIX timestamp format
+
     offset += str_length_of_time
     return value, offset
 
 
-async def wait_expire_time(expire_time_remaining, keys , is_seconds):
-    remaining_time = CommandExpire(None, None, expire_time_remaining, keys, is_seconds, True)
-    await remaining_time.execute()
+async def wait_expire_time(expire_time_unix, key, keys, is_seconds):
+    current_time = time.time()  # Obtain current time in seconds
+    if not is_seconds:
+        current_time *= 1000  # Convert to milliseconds if needed
+
+    time_remaining = expire_time_unix - current_time  # Compute time remaining until expiry
+
+    # debug
+    # import datetime
+    #
+    # # Dacă value reprezintă milisecunde
+    # timestamp = datetime.datetime.utcfromtimestamp(expire_time_unix / 1000)
+    # print(f"Timestamp in human-readable format: {timestamp}")
+    # print("REAL time remainging ", time_remaining, " curent time ", current_time, " expire unix time", expire_time_unix,
+    #       " is seconds ", is_seconds)
+    if time_remaining > 0:
+        remaining_time = CommandExpire(None, key, time_remaining, keys, is_seconds)
+        await remaining_time.execute()
+    else:
+        keys.pop(key, None)  # remove the key from the dictionary if the time is already expired

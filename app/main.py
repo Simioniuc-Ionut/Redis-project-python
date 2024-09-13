@@ -1,6 +1,5 @@
 import asyncio
 import argparse
-import time
 from app.observer_pattern.RDBFileHandler import load_rdb_file, start_monitoring_directory
 from app.connection.ConnectionRedis import ConnectionRedis
 from app.EventLoop import EventLoop
@@ -10,13 +9,13 @@ from app import Globals
 async def main_loop(server_set):
     while True:
         client_socket = await server_set.accept_client()
-        print("Globals keys " , Globals.global_keys)
+        print("Globals keys ", Globals.global_keys)
         loop = EventLoop(client_socket, Globals.global_keys)
         asyncio.create_task(loop.start())  # Handle client asynchronously
         # print("Client handled asynchronously")
 
 
-def main():
+async def main():
     print("Starting server...")
 
     # we parse the arguments
@@ -31,7 +30,7 @@ def main():
 
     if Globals.global_dir and Globals.global_dbfilename:
         # Load the RDB file initially (if it exists)
-        load_rdb_file(Globals.global_dir, Globals.global_dbfilename)
+        await load_rdb_file(Globals.global_dir, Globals.global_dbfilename)
 
         # Start monitoring the directory for changes
         observer = start_monitoring_directory(Globals.global_dir, Globals.global_dbfilename,
@@ -39,16 +38,25 @@ def main():
 
     # Start the main loop
     server_set = ConnectionRedis()
-    asyncio.run(main_loop(server_set))
+    # asyncio.run(main_loop(server_set))
+    await main_loop(server_set)
     # execution will be blocked here until the main_loop is finished
 
     # Stop the observer
+    # try:
+    #     while True:
+    #         time.sleep(1)  # Keep the script running
+    # except KeyboardInterrupt:  # Stop the observer when the script is interrupted by user with CTR+C
+    #     observer.stop()
+    # observer.join()
     try:
         while True:
-            time.sleep(1)  # Keep the script running
-    except KeyboardInterrupt:  # Stop the observer when the script is interrupted by user with CTR+C
+            await asyncio.sleep(1)  # Keep the script running
+    except KeyboardInterrupt:
         observer.stop()
     observer.join()
 
+
 if __name__ == "__main__":
-    main()
+    # main()
+    asyncio.run(main())
