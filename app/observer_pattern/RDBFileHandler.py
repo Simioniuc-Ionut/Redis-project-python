@@ -8,37 +8,60 @@ from app.command_pattern.commands.CommandEXPIRE import CommandExpire
 
 
 class RDBFileHandler(FileSystemEventHandler):
+    """
+    A class to handle file system events for RDB files.
+
+    Attributes:
+    filename (str): The name of the file to monitor.
+    callback (function): The callback function to execute on file events.
+    """
+
     def __init__(self, filename, callback):
+        """
+        Initialize the RDBFileHandler with a filename and a callback function.
+
+        Parameters:
+        filename (str): The name of the file to monitor.
+        callback (function): The callback function to execute on file events.
+        """
         self.filename = filename
         self.callback = callback
 
     def on_modified(self, event):
+        """
+        Handle the event when the monitored file is modified.
+
+        Parameters:
+        event (FileSystemEvent): The file system event.
+        """
         if event.src_path.endswith(self.filename):  # src_path is the path of the file that was modified
             print(f"Detected modification in {self.filename}")
             self.callback()  # Trigger the callback to reload the RDB file
 
     def on_created(self, event):
+        """
+        Handle the event when the monitored file is created.
+
+        Parameters:
+        event (FileSystemEvent): The file system event.
+        """
         if event.src_path.endswith(self.filename):
             print(f"Detected creation of {self.filename}")
             self.callback()  # Trigger the callback to load the RDB file
 
 
-"""
-Starts monitoring a directory for changes to a specified file and triggers a callback when the file is created or modified.
-
-Parameters:
-- `directory` (str): The path of the directory to be monitored.
-- `filename` (str): The name of the file to be monitored.
-- `callback` (function): The function to be called when the file is created or modified.
-
-Returns:
-- `Observer`: The `Observer` object that monitors the specified directory.
-
-This allows the application to automatically react to changes in the specified file within the monitored directory.
-"""
-
-
 def start_monitoring_directory(directory, filename, callback):
+    """
+    Start monitoring a directory for changes to a specified file and trigger a callback when the file is created or modified.
+
+    Parameters:
+    directory (str): The path of the directory to be monitored.
+    filename (str): The name of the file to be monitored.
+    callback (function): The function to be called when the file is created or modified.
+
+    Returns:
+    Observer: The Observer object that monitors the specified directory.
+    """
     event_handler = RDBFileHandler(filename, callback)  # Create an event handler for the RDB file
     observer = Observer()  # Create an observer object
     observer.schedule(event_handler, path=directory, recursive=False)
@@ -47,6 +70,13 @@ def start_monitoring_directory(directory, filename, callback):
 
 
 async def load_rdb_file(directory, filename):
+    """
+    Load and process an RDB file from the specified directory.
+
+    Parameters:
+    directory (str): The path of the directory containing the RDB file.
+    filename (str): The name of the RDB file to be loaded.
+    """
     rdb_file_path = os.path.join(directory, filename)
     if os.path.exists(rdb_file_path):
         print(f"Loading RDB file from {rdb_file_path}")
@@ -61,6 +91,12 @@ async def load_rdb_file(directory, filename):
 
 
 async def _process_rdb_file(content):
+    """
+       Process the content of an RDB file.
+
+       Parameters:
+       content (bytes): The content of the RDB file.
+       """
     __process_header(content)  # header section of the RDB file
     offset = 9  # cursor to keep track of the current position in the content
     # keys = {}  # dictionary to store the keys and their values
@@ -141,6 +177,12 @@ async def _process_rdb_file(content):
 
 
 def __process_header(content):
+    """
+        Process the header of the RDB file.
+
+        Parameters:
+        content (bytes): The content of the RDB file.
+        """
     header = content[:9]  # first 9 bytes are the header
     magic_string = header[:5].decode('ascii')  # first 5 bytes are the magic string
     version = int(header[5:].decode('ascii'))  # next 4 bytes are the version
@@ -153,7 +195,13 @@ def __process_header(content):
 def __decode_size(content, offset):
     """
     Decode the size using the Redis size encoding scheme.
-    Returns the size and the new offset after reading the value.
+
+    Parameters:
+    content (bytes): The content of the RDB file.
+    offset (int): The current offset in the content.
+
+    Returns:
+    tuple: The decoded size and the new offset after reading the value.
     """
     first_byte = content[offset]
     print(f"Decoding size, first_byte: {first_byte:02x}, offset: {offset}")  # Debug info
@@ -195,7 +243,13 @@ def __decode_size(content, offset):
 def __decode_string(content, offset):
     """
     Decode a string value from the content.
-    Returns the string value and the new offset after reading the value.
+
+    Parameters:
+    content (bytes): The content of the RDB file.
+    offset (int): The current offset in the content.
+
+    Returns:
+    tuple: The decoded string value and the new offset after reading the value.
     """
     string_length, offset = __decode_size(content, offset)  # Decode the length of the string
     if string_length == -1:  # special case for redis-bits
@@ -208,6 +262,17 @@ def __decode_string(content, offset):
 
 # time stamp is decode in little endian
 def __decode_little_endian(content, offset, is_seconds):
+    """
+        Decode a timestamp value in little-endian format.
+
+        Parameters:
+        content (bytes): The content of the RDB file.
+        offset (int): The current offset in the content.
+        is_seconds (bool): Whether the timestamp is in seconds or milliseconds.
+
+        Returns:
+        tuple: The decoded timestamp value and the new offset after reading the value.
+        """
     if is_seconds:
         # seconds , unsigned int 32 bits
         str_length_of_time = 4
@@ -223,6 +288,15 @@ def __decode_little_endian(content, offset, is_seconds):
 
 
 async def wait_expire_time(expire_time_unix, key, keys, is_seconds):
+    """
+        Calculate the remaining time until a key expires and schedule its expiration.
+
+        Parameters:
+        expire_time_unix (int): The expiration time in UNIX timestamp format.
+        key (str): The key to be expired.
+        keys (dict): The dictionary of keys and their values.
+        is_seconds (bool): Whether the expiration time is in seconds or milliseconds.
+        """
     current_time = time.time()  # Obtain current time in seconds
     if not is_seconds:
         current_time *= 1000  # Convert to milliseconds if needed

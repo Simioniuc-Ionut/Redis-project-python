@@ -1,60 +1,61 @@
-[![progress-banner](https://backend.codecrafters.io/progress/redis/9d672003-9da3-43ea-ba8f-e9f19a8cc511)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+# Project Documentation
 
-This is a starting point for Python solutions to the
-["Build Your Own Redis" Challenge](https://codecrafters.io/challenges/redis).
+## Overview
 
-In this challenge, you'll build a toy Redis clone that's capable of handling
-basic commands like `PING`, `SET` and `GET`. Along the way we'll learn about
-event loops, the Redis protocol and more.
+This project is a toy Redis clone built as part of the ["Build Your Own Redis" Challenge](https://codecrafters.io/challenges/redis). The implementation handles basic Redis commands like `PING`, `SET`, and `GET`, and includes features such as reading RDB files, decoding binary data, and more.
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+## Implementation Details
 
-# Passing the first stage
+### Concepts Used
 
-The entry point for your Redis implementation is in `app/main.py`. Study and
-uncomment the relevant code, and push your changes to pass the first stage:
+1. **Command Pattern**: The project uses the command pattern to handle different Redis commands. Each command is implemented as a class inheriting from an abstract `Command` class.
+2. **Asynchronous Programming**: The project uses Python's `asyncio` library to handle asynchronous operations, ensuring non-blocking I/O.
+3. **RESP Protocol**: The project implements the Redis Serialization Protocol (RESP) to communicate with clients.
+4. **Observer Pattern**: Allows an object to notify other objects about changes in its state.
+5. **Singleton Pattern**: Ensures ConnectionRedis class has only one instance and provides a global point of access to it.
 
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
-```
+### Key Components
 
-That's all!
+- **Command Classes**: Each Redis command is implemented as a separate class (e.g., `CommandECHO`, `CommandConfigGet`).
+- **Receiver**: The receiver class handles the actual communication with the client.
+- **Globals**: A module to store global configuration parameters.
 
-# Stage 2 & beyond
+### Problems Solved
 
-Note: This section is for stages 2 and beyond.
+1. **Reading RDB Files**: Implemented functionality to read and parse Redis Database (RDB) files.
+2. **Decoding Binary Data**: Added methods to decode binary data into readable formats.
+3. **Handling Configuration Parameters**: Implemented commands to get configuration parameters like `dir` and `dbfilename`.
+4. **Asynchronous Execution**: Ensured that commands execute asynchronously to avoid blocking operations.
+## Testing and Output
 
-1. Ensure you have `python (3.x)` installed locally
-1. Run `./your_program.sh` to run your Redis server, which is implemented in
-   `app/main.py`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+### Screenshots
 
-# Troubleshooting
+Include screenshots of your tests and their outputs here.
 
-## module `socket` has no attribute `create_server`
+![Test Output 1](Test_Images/Redis2(1).png)
+![Test Output 2](Test_Images/Redis2(2).png)
+![Test Output 3](Test_Images/Redis2(3).png)
+![Test Output 4](Test_Images/Redis2(4).png)
+![Test Output 5](Test_Images/Redis2(5).png)
+![Test Output 6](Test_Images/Redis2(6).png)
+![Test Output 7](Test_Images/Redis2(7).png)
+![Test Output 8](Test_Images/Redis2(8).png)
+![Test Output 9](Test_Images/Redis2(9).png)
+![Test Output 10](Test_Images/Redis2(10).png)
+![Test Output 11](Test_Images/Redis2(11).png)
+![Test Output 12](Test_Images/Redis2(12).png)
+![Test Output 13](Test_Images/Redis2(13).png)
+## References
 
-When running your server locally, you might see an error like this:
+- [Redis Protocol Specification](https://redis.io/topics/protocol)
+- [Python `asyncio` Documentation](https://docs.python.org/3/library/asyncio.html)
+- [Command Pattern](https://refactoring.guru/design-patterns/command)
+- [Codecrafters Redis Challenge](https://codecrafters.io/challenges/redis)
+- [Redis RDB File Format](https://rdb.fnordig.de/file_format.html#value-encoding)
+## Troubleshooting
 
-```
-Traceback (most recent call last):
-  File "/.../python3.7/runpy.py", line 193, in _run_module_as_main
-    "__main__", mod_spec)
-  File "/.../python3.7/runpy.py", line 85, in _run_code
-    exec(code, run_globals)
-  File "/app/app/main.py", line 11, in <module>
-    main()
-  File "/app/app/main.py", line 6, in main
-    s = socket.create_server(("localhost", 6379), reuse_port=True)
-AttributeError: module 'socket' has no attribute 'create_server'
-```
+### Common Issues
 
-This is because `socket.create_server` was introduced in Python 3.8, and you
-might be running an older version.
+#### `module 'socket' has no attribute 'create_server'`
 
-You can fix this by installing Python 3.8 locally and using that.
-
-If you'd like to use a different version of Python, change the `language_pack`
-value in `codecrafters.yml`.
+This error occurs if you are using a Python version older than 3.8. Upgrade to Python 3.8 or later to resolve this issue.

@@ -8,5 +8,3 @@ class CommandPing(Command):
 
     async def execute(self):
         await self.receiver.send_message(b"+PONG\r\n")
-
-
