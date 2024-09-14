@@ -12,5 +12,5 @@ class CommandInfo(Command):
     async def execute(self):
         if self.role is not "master":
             self.role = "slave"
-        message = f"${str(len(self.role) + 4)}\r\nrole:{self.role}\r\n"
+        message = f"${str(len(self.role) + 5)}\r\nrole:{self.role}\r\n"
         await self.receiver.send_message(message.encode())
