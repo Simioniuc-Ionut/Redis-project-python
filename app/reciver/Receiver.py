@@ -1,5 +1,7 @@
 import asyncio
-from app.command_pattern.ProcessCommands import process_ping, process_echo, process_set, process_get, process_config_get, process_keys
+from app.command_pattern.ProcessCommands import process_ping, process_echo, process_set, process_get, \
+    process_config_get, process_keys, process_info
+from app import Globals
 
 class Receiver:
     """
@@ -99,3 +101,9 @@ class Receiver:
             await process_config_get(self, arguments[2], invoker)
         elif command == "KEYS":
             await process_keys(self, arguments, invoker)
+        elif command == "-P":
+            port = arguments[1]
+            if Globals.global_port is not port:
+                print("That port not exist ", port)
+            elif arguments[2].upper() == "INFO":
+                await process_info(self, arguments, invoker)

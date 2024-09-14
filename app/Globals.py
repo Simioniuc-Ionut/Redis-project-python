@@ -12,3 +12,5 @@ global_keys = {}
 """
 global_keys (dict): A global dictionary to store key-value pairs.
 """
+global_role = "master"
+global_port = None

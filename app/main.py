@@ -5,6 +5,7 @@ from app.connection.ConnectionRedis import ConnectionRedis
 from app.EventLoop import EventLoop
 from app import Globals
 
+
 async def main_loop(server_set):
     """
     Main loop to accept and handle client connections.
@@ -18,6 +19,7 @@ async def main_loop(server_set):
         loop = EventLoop(client_socket, Globals.global_keys)
         asyncio.create_task(loop.start())  # Handle client asynchronously
 
+
 async def main():
     """
     Main function to start the server, parse arguments, load RDB file, and start monitoring the directory.
@@ -29,10 +31,13 @@ async def main():
     parser.add_argument('--dir', type=str, help='Directory to store the data')
     parser.add_argument('--dbfilename', type=str, help='Name of the file to store the data')
     parser.add_argument('--port', type=int, help='Port number to listen on', default=6379)
+    parser.add_argument('--replicaof', type=str, help='Replicate data to another server', default='master')
     args = parser.parse_args()  # Parse arguments
 
     Globals.global_dir = args.dir
     Globals.global_dbfilename = args.dbfilename
+    Globals.global_role = args.replicaof
+    Globals.global_port = args.port
 
     if Globals.global_dir and Globals.global_dbfilename:
         # Load the RDB file initially (if it exists)
@@ -53,6 +58,7 @@ async def main():
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

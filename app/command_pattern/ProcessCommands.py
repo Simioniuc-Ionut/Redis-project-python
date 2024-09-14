@@ -1,6 +1,7 @@
 from app.command_pattern.commands.CommandConfigGET import CommandConfigGet
 from app.command_pattern.commands.CommandECHO import CommandECHO
 from app.command_pattern.commands.CommandGET import CommandGET
+from app.command_pattern.commands.CommandInfo import CommandInfo
 from app.command_pattern.commands.CommandKEYS import CommandKEYS
 from app.command_pattern.commands.CommandEXPIRE import CommandExpire
 from app.command_pattern.commands.CommandPing import CommandPing
@@ -103,4 +104,18 @@ async def process_keys(receiver, arguments, invoker):
     """
     pattern = arguments[1]
     invoker.add_command(CommandKEYS(receiver, pattern))
+    await invoker.execute_commands()
+
+
+async def process_info(receiver, arguments, invoker):
+    """
+    Process the INFO command.
+
+    Parameters:
+    receiver (object): The receiver object that will handle the response.
+    arguments (list): The list of arguments for the INFO command.
+    invoker (object): The invoker object that manages command execution.
+    """
+    if arguments[1] == "replication":
+        invoker.add_command(CommandInfo(receiver))
     await invoker.execute_commands()
