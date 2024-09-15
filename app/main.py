@@ -42,13 +42,15 @@ def perform_handshake(host, port, listening_port):
     master_socket.send(
         f"*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n{listening_port}\r\n*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n".encode()
     )
-    while True:
-        data = master_socket.recv(1024).decode()
-        if data:
-            print(data)
-            break
-
-
+    msg = master_socket.recv(1024).decode()
+    print("Handshake received: ", msg)
+    master_socket.send("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n".encode())
+    msg = master_socket.recv(1024).decode()
+    print("Handshake received: ", msg)
+    master_socket.send("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n".encode())
+    msg = master_socket.recv(1024).decode()
+    print("Handshake received: ", msg)
+    print("Handshake completed")
 async def main():
     """
     Main function to start the server, parse arguments, load RDB file, and start monitoring the directory.
