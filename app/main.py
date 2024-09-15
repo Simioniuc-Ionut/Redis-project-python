@@ -36,7 +36,10 @@ async def main_loop(server_set):
 def perform_handshake(host, port):
     master_socket = socket.create_connection((host, port))
     master_socket.sendall(str.encode("*1\r\n$4\r\nping\r\n"))
-
+    master_socket.recv(1024).decode()
+    master_socket.send(
+        f"*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n{port}\r\n*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n".encode()
+    )
 async def main():
     """
     Main function to start the server, parse arguments, load RDB file, and start monitoring the directory.
