@@ -35,22 +35,18 @@ async def main_loop(server_set):
         asyncio.create_task(loop.start())  # Handle client asynchronously
 
 
-def perform_handshake(host, port, listening_port):
-    master_socket = socket.create_connection((host, port))
-    master_socket.sendall(str.encode("*1\r\n$4\r\nping\r\n"))
-    master_socket.recv(1024).decode()
-    master_socket.send(
-        f"*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n{listening_port}\r\n*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n".encode()
-    )
-    msg = master_socket.recv(1024).decode()
-    print("Handshake received: ", msg)
-    master_socket.send("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n".encode())
-    msg = master_socket.recv(1024).decode()
-    print("Handshake received: ", msg)
-    master_socket.send("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n".encode())
-    msg = master_socket.recv(1024).decode()
-    print("Handshake received: ", msg)
-    print("Handshake completed")
+def perform_handshake(host, port, slave_port):
+    with socket.create_connection((host, port)) as s:
+        s.send("*1\r\n$4\r\nPING\r\n".encode())
+        s.recv(1024)
+        s.send(
+            f"*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n{slave_port}\r\n".encode()
+        )
+        s.recv(1024)
+        s.send("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n".encode())
+        s.recv(1024)
+        s.send("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n".encode())
+        s.recv(1024)
 
 
 async def main():
