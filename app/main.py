@@ -10,6 +10,7 @@ from app.EventLoop import EventLoop
 from app import Globals
 from app.reciver.MasterReceiver import MasterReceiver
 
+
 def set_globals_variables(args):
     Globals.global_dir = args.dir
     Globals.global_dbfilename = args.dbfilename
@@ -18,6 +19,7 @@ def set_globals_variables(args):
     else:
         Globals.global_role = "replica"
     Globals.global_port = args.port
+
 
 async def main_loop(server_set):
     """
@@ -40,6 +42,13 @@ def perform_handshake(host, port, listening_port):
     master_socket.send(
         f"*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n{listening_port}\r\n*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n".encode()
     )
+    while True:
+        data = master_socket.recv(1024).decode()
+        if data:
+            print(data)
+            break
+
+
 async def main():
     """
     Main function to start the server, parse arguments, load RDB file, and start monitoring the directory.
@@ -60,7 +69,7 @@ async def main():
     if args.replicaof != 'master':
         print("Starting as replica server")
         host, port = args.replicaof.split()
-        perform_handshake(host, port,args.port)
+        perform_handshake(host, port, args.port)
 
         # master_host, master_port = args.replicaof.split()
         # master_receiver = MasterReceiver()
@@ -91,5 +100,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
