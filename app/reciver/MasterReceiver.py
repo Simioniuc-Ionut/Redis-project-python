@@ -14,7 +14,7 @@ class MasterReceiver:
     writer (StreamWriter): The writer stream for sending messages.
     """
 
-    def __init__(self, reader, writer):
+    def __init__(self):
         """
        Initialize the MasterReceiver with reader and writer streams.
 
@@ -22,29 +22,10 @@ class MasterReceiver:
        reader (StreamReader): The reader stream for receiving messages.
        writer (StreamWriter): The writer stream for sending messages.
        """
-        self.reader = reader
-        self.writer = writer
+        self.reader = None
+        self.writer = None
 
-    # async def receive_message(self):
-    #     """
-    #     Receive a message from the master server asynchronously.
-    #
-    #     Returns:
-    #     bytes: The received message.
-    #     """
-    #     return await self.reader.read(1024)
-
-    # async def send_message(self, message):
-    #     """
-    #     Send a message to the master server asynchronously.
-    #
-    #     Parameters:
-    #     message (bytes): The message to be sent.
-    #     """
-    #     self.writer.write(message)
-    #     await self.writer.drain()
-
-    async def start_replica_server(self,master_host, master_port):
+    async def start_replica_server(self, master_host, master_port):
         """
         Start the replica server and connect to the master server.
 
@@ -54,13 +35,13 @@ class MasterReceiver:
         """
         print(f"Connecting to master at {master_host}:{master_port}...")
         connection = ConnectionRedis(master_host=master_host, master_port=master_port)
-        reader, writer = await connection.connect_to_master()
-        master_receiver = MasterReceiver(reader, writer)
-        await self.start_handshake(master_receiver)
+        await connection.perform_handshake()
+        # self.reader, self.writer = await connection.connect_to_master()  # wait for connection to master
+        # await self.start_handshake(self.reader, self.writer)
 
-    async def start_handshake(self, reader, writer):
-        invoker = Invoker()
-        invoker.add_command(CommandPingReplication(reader, writer))
-        response = await invoker.execute_commands()
-        print("Handshake received: ", response)
+    # async def start_handshake(self, reader, writer):
+    #     invoker = Invoker()
+    #     invoker.add_command(CommandPingReplication(reader, writer))
+    #     response = await invoker.execute_commands()
+    #     print("Handshake received: ", response)
 
