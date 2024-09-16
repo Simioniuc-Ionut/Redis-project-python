@@ -119,3 +119,15 @@ async def process_info(receiver, arguments, invoker):
     if arguments[1] == "replication":
         invoker.add_command(CommandInfo(receiver))
     await invoker.execute_commands()
+
+
+async def process_replication_config(receiver, arguments):
+    """
+    Process the REPLCONF command.
+
+    Parameters:
+    receiver (object): The receiver object that will handle the response.
+    arguments (list): The list of arguments for the REPLCONF command.
+    """
+    print("REPLCONF arguments ,send ok")
+    await receiver.send_message("+OK\r\n".encode())
