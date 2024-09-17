@@ -18,7 +18,7 @@ class CommandPsync(Command):
         # debug
         print("PSYNC arguments ,send ok")
         the_offset_response = 0
-        if self.offset != -1:
+        if self.offset > -1:
             the_offset_response = self.offset
 
         print("replication_id:", self.replid_from_master, " replication_offset:", the_offset_response)
