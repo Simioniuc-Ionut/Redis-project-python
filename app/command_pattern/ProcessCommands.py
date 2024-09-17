@@ -5,8 +5,10 @@ from app.command_pattern.commands.CommandInfo import CommandInfo
 from app.command_pattern.commands.CommandKEYS import CommandKEYS
 from app.command_pattern.commands.CommandEXPIRE import CommandExpire
 from app.command_pattern.commands.CommandPing import CommandPing
+from app.command_pattern.commands.CommandPsync import CommandPsync
+from app.command_pattern.commands.CommandReplconf import CommandReplconf
 from app.command_pattern.commands.CommandSET import CommandSET
-
+from app import Globals
 
 async def process_ping(receiver, invoker):
     """
@@ -121,13 +123,34 @@ async def process_info(receiver, arguments, invoker):
     await invoker.execute_commands()
 
 
-async def process_replication_config(receiver, arguments):
+async def process_replication_config(receiver, arguments, invoker):
     """
     Process the REPLCONF command.
 
     Parameters:
     receiver (object): The receiver object that will handle the response.
     arguments (list): The list of arguments for the REPLCONF command.
+    invoker (object): The invoker object that manages command execution.
     """
+    option = arguments[1]
+    value = arguments[2]
     print("REPLCONF arguments ,send ok")
-    await receiver.send_message("+OK\r\n".encode())
+    invoker.add_command(CommandReplconf(receiver, option, value))
+    await invoker.execute_commands()
+
+
+async def process_psync(receiver, arguments, invoker):
+    """
+    Process the PSYNC command.
+
+    Parameters:
+    receiver (object): The receiver object that will handle the response.
+    arguments (list): The list of arguments for the PSYNC command.
+    invoker (object): The invoker object that manages command execution.
+    """
+
+    replication_id = arguments[1]  # if is ? because this is the first time the replica is connecting to the master.
+    replication_offset = arguments[2]  # if is -1. is because this is the first time the replica is connecting to the master.
+
+    invoker.add_command(CommandPsync(receiver, Globals.global_master_replica_id, replication_offset))
+    await invoker.execute_commands()

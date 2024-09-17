@@ -1,6 +1,6 @@
 import asyncio
 from app.command_pattern.ProcessCommands import process_ping, process_echo, process_set, process_get, \
-    process_config_get, process_keys, process_info, process_replication_config
+    process_config_get, process_keys, process_info, process_replication_config, process_psync
 from app import Globals
 
 class Receiver:
@@ -103,5 +103,7 @@ class Receiver:
             await process_keys(self, arguments, invoker)
         elif command == "INFO":
             await process_info(self, arguments, invoker)
-        elif command == "REPLCONF":
-            await process_replication_config(self, arguments)
+        elif command == "REPLCONF": # send from replica to master
+            await process_replication_config(self, arguments, invoker)
+        elif command == "PSYNC": # send from replica to master
+            await process_psync(self, arguments, invoker)
