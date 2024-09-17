@@ -2,7 +2,7 @@ import asyncio
 import argparse
 import socket
 
-from app.command_pattern.commands.CommandPing import CommandPing
+from app.command_pattern.commands.Ping import CommandPing
 from app.command_pattern.invoker.Invoker import Invoker
 from app.observer_pattern.RDBFileHandler import load_rdb_file, start_monitoring_directory
 from app.connection.ConnectionRedis import ConnectionRedis

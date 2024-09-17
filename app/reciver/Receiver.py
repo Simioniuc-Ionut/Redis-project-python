@@ -1,7 +1,8 @@
 import asyncio
 from app.command_pattern.ProcessCommands import process_ping, process_echo, process_set, process_get, \
-    process_config_get, process_keys, process_info, process_replication_config, process_psync
+    process_config_get, process_keys, process_info, process_replication_config, process_psync, process_send_rdb_file
 from app import Globals
+
 
 class Receiver:
     """
@@ -103,7 +104,12 @@ class Receiver:
             await process_keys(self, arguments, invoker)
         elif command == "INFO":
             await process_info(self, arguments, invoker)
-        elif command == "REPLCONF": # send from replica to master
+        elif command == "REPLCONF":  # send from replica to master
             await process_replication_config(self, arguments, invoker)
-        elif command == "PSYNC": # send from replica to master
+        elif command == "PSYNC":  # send from replica to master
             await process_psync(self, arguments, invoker)
+            """After sending the FULLRESYNC response, the master will then send a RDB file of its current 
+                state to the  replica. The replica is expected to load the file into memory, replacing its
+                 current state."""
+            # we need to send and empty rdb file
+            await process_send_rdb_file(self, invoker)

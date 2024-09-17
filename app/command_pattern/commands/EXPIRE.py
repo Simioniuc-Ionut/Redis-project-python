@@ -2,6 +2,7 @@ import asyncio
 
 from app.command_pattern.commands.Command import Command
 
+
 class CommandExpire(Command):
     """
     CommandExpire class to handle the EXPIRE command in the command pattern.

@@ -26,3 +26,4 @@ class CommandPsync(Command):
         response = f"+FULLRESYNC {self.replid_from_master} {the_offset_response}\r\n"
         await self.receiver.send_message(response.encode())
         print("Psync response sent.")
+

@@ -4,7 +4,7 @@ import threading
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from app import Globals
-from app.command_pattern.commands.CommandEXPIRE import CommandExpire
+from app.command_pattern.commands.EXPIRE import CommandExpire
 
 
 class RDBFileHandler(FileSystemEventHandler):

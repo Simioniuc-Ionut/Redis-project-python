@@ -11,6 +11,10 @@ class Command(ABC):
     """
 
     @abstractmethod
+    def __init__(self, receiver):
+        self.receiver = receiver
+
+    @abstractmethod
     def execute(self):
         """
         Abstract method to execute the command.

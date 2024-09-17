@@ -1,6 +1,6 @@
 import asyncio
 
-from app.command_pattern.commands.CommandPing import CommandPing, CommandPingReplication
+from app.command_pattern.commands.Ping import CommandPing, CommandPingReplication
 from app.command_pattern.invoker.Invoker import Invoker
 from app.connection.ConnectionRedis import ConnectionRedis
 
