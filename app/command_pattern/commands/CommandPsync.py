@@ -18,10 +18,10 @@ class CommandPsync(Command):
         # debug
         print("PSYNC arguments ,send ok")
         print("replication_id:", self.replid_from_master, " replication_offset:", self.offset)
-        if self.offset == -1:
-            the_offset_response = 0
-        else:
+        the_offset_response = 0
+        if self.offset != -1:
             the_offset_response = self.offset
+
         response = f"+FULLRESYNC {self.replid_from_master} {the_offset_response}\r\n"
         await self.receiver.send_message(response.encode())
         print("Psync response sent.")
