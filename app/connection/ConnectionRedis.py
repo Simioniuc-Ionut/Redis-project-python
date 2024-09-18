@@ -1,6 +1,6 @@
 import asyncio
 import socket
-
+from app import Globals
 
 class ConnectionRedis:
     """
@@ -47,7 +47,7 @@ class ConnectionRedis:
         """
         loop = asyncio.get_running_loop()
         client_socket, address = await loop.sock_accept(self._instance._server_socket)
-        print("Client connected", address)
+        print("Client connected", address, " as a ", Globals.global_role, " server ")
         return client_socket
 
 

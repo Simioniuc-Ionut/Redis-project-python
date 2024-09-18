@@ -15,3 +15,4 @@ global_keys (dict): A global dictionary to store key-value pairs.
 global_role = "master"
 global_master_replica_id = "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb"
 global_port = None
+global_replica_connections = []

@@ -113,3 +113,5 @@ class Receiver:
                  current state."""
             # we need to send and empty rdb file
             await process_send_rdb_file(self, invoker)
+            # we need to keep the replica connection with server master
+            Globals.global_replica_connections.append(self)  # add the replica connection to the list

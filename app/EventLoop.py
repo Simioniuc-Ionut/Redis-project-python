@@ -36,10 +36,22 @@ class EventLoop:
         """
         print("Event Loop started")
         while self._is_running:
-            message = await self.receiver.receive_message()
-            if message == b"":
-                print("Client disconnected")
-                self.client_socket.close()
+            try:
+                if self.client_socket.fileno() == -1:  # check if the socket is closed by using descriptor
+                    print("Socket is closed")
+                    self._is_running = False
+                    break
+
+                # verify if the socket is still connected
+                message = await self.receiver.receive_message()
+                if message == b"":
+                    print("Client disconnected")
+                    self.client_socket.close()
+                    self._is_running = False
+                else:
+                    await self.receiver.process_message(message, self.invoker)
+            except OSError as e:
+                print(f"OSError: {e} and error ", self.client_socket)
+
                 self._is_running = False
-            else:
-                await self.receiver.process_message(message, self.invoker)
+                self.client_socket.close()

@@ -21,20 +21,6 @@ def set_globals_variables(args):
     Globals.global_port = args.port
 
 
-async def main_loop(server_set):
-    """
-    Main loop to accept and handle client connections.
-
-    Parameters:
-    server_set (ConnectionRedis): The server socket manager for accepting client connections.
-    """
-    while True:
-        client_socket = await server_set.accept_client()
-        print("Globals keys ", Globals.global_keys)
-        loop = EventLoop(client_socket, Globals.global_keys)
-        asyncio.create_task(loop.start())  # Handle client asynchronously
-
-
 def perform_handshake(host, port, slave_port):
     with socket.create_connection((host, port)) as s:
         s.send("*1\r\n$4\r\nPING\r\n".encode())
@@ -47,12 +33,50 @@ def perform_handshake(host, port, slave_port):
         s.recv(1024)
         s.send("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n".encode())
         s.recv(1024)
+        return s
+
+
+
+async def master_main_loop(server_set):
+    """
+    Main loop to accept and handle client connections for the master server.
+
+    Parameters:
+    server_set (ConnectionRedis): The server socket manager for accepting client connections.
+    """
+
+    while True:
+        client_socket = await server_set.accept_client()
+        print("Globals keys ", Globals.global_keys)
+        loop = EventLoop(client_socket, Globals.global_keys)
+        asyncio.create_task(loop.start())  # Handle client asynchronously
+
+async def replica_main_loop(server_set, master_socket):
+    """
+    Main loop to handle the connection with the master server and accept client connections for the replica server.
+
+    Parameters:
+    server_set (ConnectionRedis): The server socket manager for accepting client connections.
+    master_socket (socket): The socket connected to the master server.
+    """
+    # Handle master connection
+    print("Master connection established")
+    loop = EventLoop(master_socket, Globals.global_keys)
+    asyncio.create_task(loop.start())  # Handle master connection asynchronously
+
+    # Accept client connections
+    while True:
+        client_socket = await server_set.accept_client()
+        print("Globals keys ", Globals.global_keys)
+        loop = EventLoop(client_socket, Globals.global_keys)
+        asyncio.create_task(loop.start())  # Handle client asynchronously
 
 
 async def main():
     """
     Main function to start the server, parse arguments, load RDB file, and start monitoring the directory.
     """
+    global master_socket
     print("Starting server...")
 
     # Parse the arguments
@@ -65,17 +89,14 @@ async def main():
 
     set_globals_variables(args)
 
-    # If server is started as a replica, connect to the master server
+    # If application is started as a replica, connect to the master server
     if args.replicaof != 'master':
         print("Starting as replica server")
         host, port = args.replicaof.split()
-        perform_handshake(host, port, args.port)
-
-        # master_host, master_port = args.replicaof.split()
-        # master_receiver = MasterReceiver()
-        # await master_receiver.start_replica_server(master_host, master_port)
-
-    print("Starting as master server")
+        master_socket = perform_handshake(host, port, args.port)
+        # now my replica server is connected to master server,and wait command from him ,to execute,like how a client is connected to a server master.
+    else:
+        print("Starting as master server")
 
     if Globals.global_dir and Globals.global_dbfilename:
         # Load the RDB file initially (if it exists)
@@ -87,7 +108,11 @@ async def main():
 
     # Start the main loop
     server_set = ConnectionRedis(args.port)
-    await main_loop(server_set)  # Execution will be blocked here until the main_loop is finished
+    if Globals.global_role == "master":
+        await master_main_loop(server_set)  # Execution will be blocked here until the main_loop is finished
+    else:
+        await replica_main_loop(server_set,
+                                master_socket)  # Execution will be blocked here until the main_loop is finished
 
     # Stop the observer
     try:
