@@ -48,6 +48,7 @@ class EventLoop:
                 # verify if the socket is still connected
                 try:
                     message = await self.receiver.receive_message()
+                    print("Message received ", message)
                 except ConnectionResetError as e:
                     print(f"ConnectionResetError: {e}")
                     self._is_running = False
