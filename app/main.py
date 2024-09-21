@@ -1,6 +1,7 @@
 import asyncio
 import argparse
 import socket
+import threading
 
 from app.command_pattern.commands.Ping import CommandPing
 from app.command_pattern.invoker.Invoker import Invoker
@@ -35,7 +36,7 @@ async def perform_handshake(host, port, slave_port):
     if "REDIS" not in msg:
         msg = await loop.sock_recv(s, 1024)
         print("Handshake completed, ", msg, " ", s)
-        
+
     return s
 
 
@@ -52,32 +53,32 @@ async def master_main_loop(server_set):
         loop = EventLoop(client_socket, Globals.global_keys)
         asyncio.create_task(loop.start())  # Handle client asynchronously
 
-async def replica_main_loop(server_set, master_socket):
-    """
-    Main loop to handle the connection with the master server and accept client connections for the replica server.
-
-    Parameters:
-    server_set (ConnectionRedis): The server socket manager for accepting client connections.
-    master_socket (socket): The socket connected to the master server.
-    """
-    try:
-        keys = Globals.global_keys
-        # Handle master connection
-        print("Master connection established  with master socket: ", master_socket)
-        loop = EventLoop(master_socket, keys)
-        asyncio.create_task(loop.start(True))  # Handle master connection asynchronously
-        print("Master connection closed")
-        # Accept client connections
-        while True:
-            try:
-                client_socket = await server_set.accept_client()
-                print("Globals keys ", keys, " client socket ", client_socket)
-                loop = EventLoop(client_socket, keys)
-                asyncio.create_task(loop.start())  # Handle client asynchronously
-            except Exception as e:
-                print(f"Error accepting client connection: {e}")
-    except Exception as e:
-        print(f"Error in replica main loop: {e}")
+# async def replica_main_loop(server_set, master_socket):
+#     """
+#     Main loop to handle the connection with the master server and accept client connections for the replica server.
+#
+#     Parameters:
+#     server_set (ConnectionRedis): The server socket manager for accepting client connections.
+#     master_socket (socket): The socket connected to the master server.
+#     """
+#     try:
+#         keys = Globals.global_keys
+#         # Handle master connection
+#         print("Master connection established  with master socket: ", master_socket)
+#         loop = EventLoop(master_socket, keys)
+#         asyncio.create_task(loop.start(True))  # Handle master connection asynchronously
+#         print("Master connection closed")
+#         # Accept client connections
+#         while True:
+#             try:
+#                 client_socket = await server_set.accept_client()
+#                 print("Globals keys ", keys, " client socket ", client_socket)
+#                 loop = EventLoop(client_socket, keys)
+#                 asyncio.create_task(loop.start())  # Handle client asynchronously
+#             except Exception as e:
+#                 print(f"Error accepting client connection: {e}")
+#     except Exception as e:
+#         print(f"Error in replica main loop: {e}")
     # try:
     #     keys = Globals.global_keys
     #
@@ -105,7 +106,56 @@ async def replica_main_loop(server_set, master_socket):
     #
     # except Exception as e:
     #     print(f"Error in replica main loop: {e}")
+async def handle_master_connection(master_socket, keys):
+    try:
+        print("Master connection established with master socket: ", master_socket)
+        loop = EventLoop(master_socket, keys)
+        await loop.start(True)  # Handle master connection asynchronously
+        print("Master connection closed")
+    except Exception as e:
+        print(f"Error handling master connection: {e}")
 
+async def handle_client_connections(server_set, keys):
+    while True:
+        try:
+            client_socket = await server_set.accept_client()
+            print("Globals keys ", keys, " client socket ", client_socket)
+            loop = EventLoop(client_socket, keys)
+            asyncio.create_task(loop.start())  # Handle client asynchronously
+        except Exception as e:
+            print(f"Error accepting client connection: {e}")
+def start_thread(loop, coro):
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(coro)
+async def replica_main_loop(server_set, master_socket):
+    """
+    Main loop to handle the connection with the master server and accept client connections for the replica server.
+
+    Parameters:
+    server_set (ConnectionRedis): The server socket manager for accepting client connections.
+    master_socket (socket): The socket connected to the master server.
+    """
+    try:
+        keys = Globals.global_keys
+
+        # Create event loops for each thread
+        master_loop = asyncio.new_event_loop()
+        client_loop = asyncio.new_event_loop()
+
+        # Create threads for each loop
+        master_thread = threading.Thread(target=start_thread, args=(master_loop, handle_master_connection(master_socket, keys)))
+        client_thread = threading.Thread(target=start_thread, args=(client_loop, handle_client_connections(server_set, keys)))
+
+        # Start threads
+        master_thread.start()
+        client_thread.start()
+
+        # Join threads
+        master_thread.join()
+        client_thread.join()
+
+    except Exception as e:
+        print(f"Error in replica main loop: {e}")
 async def main():
     """
     Main function to start the server, parse arguments, load RDB file, and start monitoring the directory.
