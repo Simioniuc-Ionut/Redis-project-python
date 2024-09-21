@@ -148,7 +148,7 @@ async def _process_rdb_file(content):
                     value, offset = __decode_string(content, offset)  # Decode the value
 
                     print(f"Key: {key}, Value: {value}")
-                    Globals.global_keys.set(key,value)  # Store key-value in the dictionary
+                    await Globals.global_keys.set(key,value)  # Store key-value in the dictionary
                     remained_hash_table -= 1  # Decrement the remaining hash table size
                     if expire_time != 0:  # we have expired UNIX timestamp
                         # print("Expire UNIX timestamp is ", expire_time, " is seconds ", is_seconds)
