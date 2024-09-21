@@ -35,6 +35,12 @@ async def perform_handshake(host, port, slave_port):
     if "REDIS" not in msg:
         msg = await loop.sock_recv(s, 1024)
         print("Handshake completed, ", msg, " ", s)
+    msg = await loop.sock_recv(s, 1024)
+    print("Handshake completed, ", msg, " from ", s)
+    msg = await loop.sock_recv(s, 1024)
+    print("Handshake completed, ", msg, " from ", s)
+    msg = await loop.sock_recv(s, 1024)
+    print("Handshake completed, ", msg, " from ", s)
     return s
 
 
