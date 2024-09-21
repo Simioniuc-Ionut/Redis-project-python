@@ -54,14 +54,17 @@ class Receiver:
         """
         if message:
             lines = message.decode().split("\r\n")
+
             if lines[0][:1] == "*":
-                await self._process_array_message(lines, invoker)
+                nr_elements = int(lines[0][1:])  # *3 ,nr elements is 3
+                await self._process_array_message(lines, invoker, nr_elements)
+
             else:
                 print("Invalid message format")
         else:
             print("No message received")
 
-    async def _process_array_message(self, lines, invoker):
+    async def _process_array_message(self, lines, invoker, nr_elements):
         """
         Process an array message and extract arguments.
 
@@ -69,10 +72,11 @@ class Receiver:
         lines (list): The list of lines in the message.
         invoker (object): The invoker object that manages command execution.
         """
-        num_args = int(lines[0][1:])
+        # print("Array message:", lines)
         arguments = []
         index = 1
-        for _ in range(num_args):
+        #Array message: ['*3', '$3', 'SET', '$3', 'foo', '$3', '123', '*3', '$3', 'SET', '$3', 'bar', '$3', '456', '']
+        for _ in range(nr_elements):
             index += 1
             argument = lines[index]
             arguments.append(argument)
@@ -80,6 +84,11 @@ class Receiver:
 
         print("Arguments:", arguments)
         await self._handle_commands(arguments, invoker)
+        # Check if there are more lines to process
+        if index < len(lines) and lines[index] != '':
+            new_lines = lines[index:]  # rest of the message
+            new_nr_elements = int(new_lines[0][1:])  # *3 ,nr elements is 3
+            await self._process_array_message(new_lines, invoker, new_nr_elements)  # we assume that is an array message
 
     async def _handle_commands(self, arguments, invoker):
         """

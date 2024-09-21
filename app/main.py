@@ -8,8 +8,6 @@ from app.observer_pattern.RDBFileHandler import load_rdb_file, start_monitoring_
 from app.connection.ConnectionRedis import ConnectionRedis
 from app.EventLoop import EventLoop
 from app import Globals
-from app.reciver.MasterReceiver import MasterReceiver
-
 
 def set_globals_variables(args):
     Globals.global_dir = args.dir
@@ -21,20 +19,23 @@ def set_globals_variables(args):
     Globals.global_port = args.port
 
 
-def perform_handshake(host, port, slave_port):
-    with socket.create_connection((host, port)) as s:
-        s.send("*1\r\n$4\r\nPING\r\n".encode())
-        s.recv(1024)
-        s.send(
-            f"*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n{slave_port}\r\n".encode()
-        )
-        s.recv(1024)
-        s.send("*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n".encode())
-        s.recv(1024)
-        s.send("*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n".encode())
-        s.recv(1024)
-        return s
-
+async def perform_handshake(host, port, slave_port):
+    loop = asyncio.get_running_loop()
+    s = socket.create_connection((host, port))  # Creează socket-ul fără context manager `with`.
+    await loop.sock_sendall(s, "*1\r\n$4\r\nPING\r\n".encode())
+    await loop.sock_recv(s, 1024)
+    await loop.sock_sendall(s, f"*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n{slave_port}\r\n".encode())
+    await loop.sock_recv(s, 1024)
+    await loop.sock_sendall(s, "*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n".encode())
+    await loop.sock_recv(s, 1024)
+    await loop.sock_sendall(s, "*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n".encode())
+    msg = await loop.sock_recv(s, 1024)
+    print("Handshake completed, ", msg, " from ", s)
+    msg = str(msg)
+    if "REDIS" not in msg:
+        msg = await loop.sock_recv(s, 1024)
+        print("Handshake completed, ", msg, " ", s)
+    return s
 
 
 async def master_main_loop(server_set):
@@ -44,7 +45,6 @@ async def master_main_loop(server_set):
     Parameters:
     server_set (ConnectionRedis): The server socket manager for accepting client connections.
     """
-
     while True:
         client_socket = await server_set.accept_client()
         print("Globals keys ", Globals.global_keys)
@@ -59,24 +59,31 @@ async def replica_main_loop(server_set, master_socket):
     server_set (ConnectionRedis): The server socket manager for accepting client connections.
     master_socket (socket): The socket connected to the master server.
     """
-    # Handle master connection
-    print("Master connection established")
-    loop = EventLoop(master_socket, Globals.global_keys)
-    asyncio.create_task(loop.start())  # Handle master connection asynchronously
 
-    # Accept client connections
-    while True:
-        client_socket = await server_set.accept_client()
-        print("Globals keys ", Globals.global_keys)
-        loop = EventLoop(client_socket, Globals.global_keys)
-        asyncio.create_task(loop.start())  # Handle client asynchronously
-
+    try:
+        keys = Globals.global_keys
+        # Handle master connection
+        print("Master connection established  with master socket: ", master_socket)
+        loop = EventLoop(master_socket, keys)
+        await asyncio.create_task(loop.start(True))  # Handle master connection asynchronously
+        print("Master connection closed")
+        # Accept client connections
+        while True:
+            try:
+                client_socket = await server_set.accept_client()
+                print("Globals keys ", keys, " client socket ", client_socket)
+                loop = EventLoop(client_socket, keys)
+                asyncio.create_task(loop.start())  # Handle client asynchronously
+            except Exception as e:
+                print(f"Error accepting client connection: {e}")
+    except Exception as e:
+        print(f"Error in replica main loop: {e}")
 
 async def main():
     """
     Main function to start the server, parse arguments, load RDB file, and start monitoring the directory.
     """
-    global master_socket
+    global master_socket , master_host, master_port
     print("Starting server...")
 
     # Parse the arguments
@@ -92,19 +99,21 @@ async def main():
     # If application is started as a replica, connect to the master server
     if args.replicaof != 'master':
         print("Starting as replica server")
-        host, port = args.replicaof.split()
-        master_socket = perform_handshake(host, port, args.port)
+        master_host, master_port = args.replicaof.split()
+        master_socket = await perform_handshake(master_host, master_port, args.port)
+        print("Master socket is ", master_socket)
+        # the connection is already closed.
+
         # now my replica server is connected to master server,and wait command from him ,to execute,like how a client is connected to a server master.
     else:
         print("Starting as master server")
+        if Globals.global_dir and Globals.global_dbfilename:
+            # Load the RDB file initially (if it exists)
+            await load_rdb_file(Globals.global_dir, Globals.global_dbfilename)
 
-    if Globals.global_dir and Globals.global_dbfilename:
-        # Load the RDB file initially (if it exists)
-        await load_rdb_file(Globals.global_dir, Globals.global_dbfilename)
-
-        # Start monitoring the directory for changes
-        observer = start_monitoring_directory(Globals.global_dir, Globals.global_dbfilename,
-                                              lambda: load_rdb_file(Globals.global_dir, Globals.global_dbfilename))
+            # Start monitoring the directory for changes
+            observer = start_monitoring_directory(Globals.global_dir, Globals.global_dbfilename,
+                                                  lambda: load_rdb_file(Globals.global_dir, Globals.global_dbfilename))
 
     # Start the main loop
     server_set = ConnectionRedis(args.port)

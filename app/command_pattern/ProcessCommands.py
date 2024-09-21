@@ -1,3 +1,4 @@
+from app.command_pattern.ProcessCommandsToReplicas import process_propagation_send_SET_command_to_replicas
 from app.command_pattern.commands.ConfigGET import CommandConfigGet
 from app.command_pattern.commands.ECHO import CommandECHO
 from app.command_pattern.commands.GET import CommandGET
@@ -22,6 +23,7 @@ async def add_and_execute_command(invoker, command):
     """
     invoker.add_command(command)
     await invoker.execute_commands()
+
 
 
 async def process_ping(receiver, invoker):
@@ -77,7 +79,9 @@ async def process_set(receiver, arguments, invoker):
                 seconds = int(arguments[i + 1])
                 await add_and_execute_command(invoker, CommandExpire(receiver, key, seconds, receiver.own_map, True))
 
-    await process_wirte_command_to_replicas(key, value)
+    # if there are replica connections, propagate the SET command to them
+    if Globals.global_replica_connections and Globals.global_role == "master":
+        await process_propagation_send_SET_command_to_replicas(key, value)
 
 
 async def process_get(receiver, arguments, invoker):
@@ -175,8 +179,4 @@ async def process_send_rdb_file(receiver, invoker):
     await add_and_execute_command(invoker, CommandSendRdbFile(receiver, file_path))
 
 
-async def process_wirte_command_to_replicas(key, value):
-    if Globals.global_replica_connections:
-        for replica in Globals.global_replica_connections:
-            message = f"*3\r\n$3\r\nSET\r\n${len(key)}\r\n{key}\r\n${len(value)}\r\n{value}\r\n"
-            await replica.send_message(message.encode())
+

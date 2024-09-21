@@ -29,10 +29,10 @@ class CommandGET(Command):
 
         If the key is not found in the map, send a nil response. Otherwise, send the value.
         """
-        if self.key not in self.map:
+        value = await self.map.get(self.key)
+        if value is None:
             await self.receiver.send_message(b"$-1\r\n")
         else:
-            value = self.map[self.key]
             message = "$" + str(len(value)) + "\r\n" + value + "\r\n"
             # debug
             print("CommandGET execute , msg is " + message)

@@ -1,5 +1,6 @@
 
 from app.command_pattern.commands.Command import Command
+from app import Globals
 class CommandSET(Command):
     """
     CommandSET is a command class that implements the SET operation for a key-value store.
@@ -32,6 +33,13 @@ class CommandSET(Command):
         This method updates the key-value store with the provided key and value,
         and then sends an "+OK" response to the receiver.
         """
-        self.map.update({self.key: self.value})
-        await self.receiver.send_message(b"+OK\r\n")
+        print("before set", self.map)
+        # self.map.update({self.key: self.value})
+        await self.map.set(self.key,self.value)
+        print("after set", self.map)
+        # print("Command executed  ", self.map)
+        # if Globals.global_role == "master":
+        await self.receiver.send_message(f"+OK\r\n".encode())
+        # else:
+        #     print("Not a master, so not sending +OK")
 
