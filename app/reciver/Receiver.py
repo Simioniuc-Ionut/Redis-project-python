@@ -23,6 +23,7 @@ class Receiver:
         """
         self.client_socket = client_socket
         self.own_map = keys
+        self.lock = asyncio.Lock()
 
     async def receive_message(self):
         """
@@ -31,8 +32,9 @@ class Receiver:
         Returns:
         bytes: The received message.
         """
-        loop = asyncio.get_running_loop()
-        return await loop.sock_recv(self.client_socket, 1024)
+        async with self.lock:
+            loop = asyncio.get_running_loop()
+            return await loop.sock_recv(self.client_socket, 1024)
 
     async def send_message(self, message):
         """
@@ -41,8 +43,9 @@ class Receiver:
         Parameters:
         message (bytes): The message to be sent.
         """
-        loop = asyncio.get_running_loop()
-        await loop.sock_sendall(self.client_socket, message)
+        async with self.lock:
+            loop = asyncio.get_running_loop()
+            await loop.sock_sendall(self.client_socket, message)
 
     async def process_message(self, message, invoker):
         """

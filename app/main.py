@@ -64,7 +64,7 @@ async def replica_main_loop(server_set, master_socket):
         # Handle master connection
         print("Master connection established  with master socket: ", master_socket)
         loop = EventLoop(master_socket, keys)
-        await asyncio.create_task(loop.start(True))  # Handle master connection asynchronously
+        asyncio.create_task(loop.start(True))  # Handle master connection asynchronously
         print("Master connection closed")
         # Accept client connections
         while True:

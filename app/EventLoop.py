@@ -56,7 +56,7 @@ class EventLoop:
 
                 if is_master:
                     print("Message received from master ", message)
-                    count += 1
+                    # count += 1
                 else:
                     print("Message received from client ", message)
                 if message == b"":
