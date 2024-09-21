@@ -41,7 +41,7 @@ class CommandExpire(Command):
         Expire the key after the specified time by sleeping for the time duration and then removing the key from the map.
         """
         await asyncio.sleep(self.time_seconds)  # wait in seconds
-        self.map.pop(self.key, None)
+        await self.map.pop(self.key, None)
 
     # we put None to avoid the KeyError if the key is not in the map
     # else we would have to check if the key is in the map before popping it
