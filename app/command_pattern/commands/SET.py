@@ -33,10 +33,10 @@ class CommandSET(Command):
         This method updates the key-value store with the provided key and value,
         and then sends an "+OK" response to the receiver.
         """
-        print("before set", self.map)
+        # print("before set", self.map)
         # self.map.update({self.key: self.value})
         await self.map.set(self.key,self.value)
-        print("after set", self.map)
+        # print("after set", self.map)
         # print("Command executed  ", self.map)
         # if Globals.global_role == "master":
         await self.receiver.send_message(f"+OK\r\n".encode())
