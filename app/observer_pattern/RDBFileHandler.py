@@ -315,4 +315,4 @@ async def wait_expire_time(expire_time_unix, key, keys, is_seconds):
         remaining_time = CommandExpire(None, key, time_remaining, keys, is_seconds)
         await remaining_time.execute()
     else:
-        keys.pop(key, None)  # remove the key from the dictionary if the time is already expired
+        await keys.pop(key, None)  # remove the key from the dictionary if the time is already expired
