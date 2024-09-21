@@ -23,7 +23,7 @@ class Receiver:
         """
         self.client_socket = client_socket
         self.own_map = keys
-        self.lock = asyncio.Lock()
+        # self.lock = asyncio.Lock()
 
     async def receive_message(self):
         """
