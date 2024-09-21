@@ -25,5 +25,8 @@ class ThreadSafeDict:
                     return None
             else:
                 return self.data.pop(key, value)
+    async def keys(self):
+        async with self.lock:
+            return self.data.keys()
     def __str__(self):
         return str(self.data)

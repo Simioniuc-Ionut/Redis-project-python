@@ -27,7 +27,8 @@ class CommandKEYS(Command):
         Execute the KEYS command by filtering keys based on the pattern and sending the result to the client.
         """
         import fnmatch
-        filtered_keys = fnmatch.filter(self.keys.keys(), self.pattern)
+        all_keys = await self.keys.keys()
+        filtered_keys = fnmatch.filter(all_keys, self.pattern)
         # print("Filtered keys:", filtered_keys)  # debug
         message = "*" + str(len(filtered_keys)) + "\r\n"
         for key in filtered_keys:
