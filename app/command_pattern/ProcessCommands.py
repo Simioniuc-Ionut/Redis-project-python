@@ -12,6 +12,7 @@ from app.command_pattern.commands.ReplconfSendAck import CommandReplconfSendACK
 from app.command_pattern.commands.SET import CommandSET
 from app import Globals
 from app.command_pattern.commands.SendRdbFile import CommandSendRdbFile
+from app.command_pattern.commands.WAIT import CommandWait
 
 
 async def add_and_execute_command(invoker, command):
@@ -197,3 +198,18 @@ async def process_replication_get_ack(receiver, arguments, invoker):
         # it's the second ,thirds ... time the replica is sending the ack, we count the offset
         await add_and_execute_command(invoker,
                                       CommandReplconfSendACK(receiver))
+
+
+async def process_wait(receiver, arguments, invoker):
+    """
+    Process the WAIT command.
+
+    Parameters:
+    receiver (object): The receiver object that will handle the response.
+    arguments (list): The list of arguments for the WAIT command.
+    invoker (object): The invoker object that manages command execution.
+    """
+    nr_replicas = int(arguments[1])
+    milliseconds = int(arguments[2])
+    # await asyncio.sleep(milliseconds / 1000)
+    await add_and_execute_command(invoker, CommandWait(receiver, nr_replicas, milliseconds))
