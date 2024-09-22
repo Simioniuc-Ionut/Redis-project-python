@@ -8,6 +8,7 @@ from app.command_pattern.commands.EXPIRE import CommandExpire
 from app.command_pattern.commands.Ping import CommandPing
 from app.command_pattern.commands.Psync import CommandPsync
 from app.command_pattern.commands.Replconf import CommandReplconf
+from app.command_pattern.commands.ReplconfSendAck import CommandReplconfSendACK
 from app.command_pattern.commands.SET import CommandSET
 from app import Globals
 from app.command_pattern.commands.SendRdbFile import CommandSendRdbFile
@@ -178,5 +179,14 @@ async def process_send_rdb_file(receiver, invoker):
     file_path = "app/empty.rdb"  # an empty rdb fle
     await add_and_execute_command(invoker, CommandSendRdbFile(receiver, file_path))
 
+async def process_replication_get_ack(receiver, arguments, invoker):
+    """
+    Process the REPLCONF GETACK command.
 
+    Parameters:
+    receiver (object): The receiver object that will handle the response.
+    arguments (list): The list of arguments for the REPLCONF GETACK command.
+    invoker (object): The invoker object that manages command execution.
+    """
+    await add_and_execute_command(invoker, CommandReplconfSendACK(receiver))
 

@@ -35,10 +35,7 @@ class EventLoop:
         The loop terminates when the client disconnects.
         """
         print("Event Loop started")
-        count = 0
         while self._is_running:
-            if count == 2:
-                break
             try:
                 if self.client_socket.fileno() == -1:  # check if the socket is closed by using descriptor
                     print("Socket is closed before reading message", self.client_socket)
@@ -56,7 +53,6 @@ class EventLoop:
 
                 if is_master:
                     print("Message received from master ", message)
-                    # count += 1
                 else:
                     print("Message received from client ", message)
                 if message == b"":

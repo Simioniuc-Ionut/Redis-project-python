@@ -26,10 +26,6 @@ class ConnectionRedis:
             if port:
                 cls._instance._server_socket = socket.create_server(("localhost", port), reuse_port=True)
                 cls._instance._server_socket.setblocking(False)  # Non-blocking socket
-            # if master_host and master_port:
-            #     cls._instance._master_socket = socket.create_connection((master_host, master_port))
-            #     cls._instance.master_host = master_host
-            #     cls._instance.master_port = master_port
         return cls._instance
 
     async def accept_client(self):
@@ -58,25 +54,3 @@ class ConnectionRedis:
         if self._instance._server_socket:
             self._instance._server_socket.close()
             self._instance._server_socket = None
-        # if self._instance._master_socket:
-        #     self._instance._master_socket.close()
-        #     self._instance._master_socket = None
-        # ConnectionRedis._instance = None
-
-
- # def close(self, close_server=True, close_master=True):
- #        """
- #        Close the server and/or master socket.
- #
- #        Parameters:
- #        close_server (bool): Whether to close the server socket.
- #        close_master (bool): Whether to close the master socket.
- #        """
- #        if close_server and self._instance._server_socket:
- #            self._instance._server_socket.close()
- #            self._instance._server_socket = None
- #        if close_master and self._instance._master_socket:
- #            self._instance._master_socket.close()
- #            self._instance._master_socket = None
- #        if not self._instance._server_socket and not self._instance._master_socket:
- #            ConnectionRedis._instance = None

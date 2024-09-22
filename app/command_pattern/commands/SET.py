@@ -38,8 +38,8 @@ class CommandSET(Command):
         await self.map.set(self.key,self.value)
         # print("after set", self.map)
         # print("Command executed  ", self.map)
-        # if Globals.global_role == "master":
-        await self.receiver.send_message(f"+OK\r\n".encode())
-        # else:
-        #     print("Not a master, so not sending +OK")
+        if Globals.global_role == "master":
+            await self.receiver.send_message(f"+OK\r\n".encode())
+        else:
+            print("Not a master, so not sending +OK")
 
