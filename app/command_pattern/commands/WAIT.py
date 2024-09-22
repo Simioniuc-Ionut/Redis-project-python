@@ -23,6 +23,6 @@ class CommandWait(Command):
         """
         Execute the command.
         """
-        # response = f":{self.numreplicas}\r\n"
-        response = self.nr_replicas
-        await self.receiver.send_message(response)
+        response = f":{self.numreplicas}\r\n"
+        # response = self.nr_replicas
+        await self.receiver.send_message(response.encode())
