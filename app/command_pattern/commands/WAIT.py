@@ -6,7 +6,7 @@ class CommandWait(Command):
     The WAIT command.
     """
 
-    def __init__(self, receiver, numreplicas, timeout):
+    def __init__(self, receiver, nr_replicas, timeout):
         """
         Initialize the command.
 
@@ -16,7 +16,7 @@ class CommandWait(Command):
         timeout (int): The timeout in milliseconds.
         """
         super().__init__(receiver)
-        self.numreplicas = numreplicas
+        self.nr_replicas = nr_replicas
         self.timeout = timeout
 
     async def execute(self):
@@ -24,5 +24,5 @@ class CommandWait(Command):
         Execute the command.
         """
         # response = f":{self.numreplicas}\r\n"
-        response = self.numreplicas
+        response = self.nr_replicas
         await self.receiver.send_message(response.encode())

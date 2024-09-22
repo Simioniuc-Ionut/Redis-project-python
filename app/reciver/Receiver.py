@@ -1,7 +1,7 @@
 import asyncio
 from app.command_pattern.ProcessCommands import process_ping, process_echo, process_set, process_get, \
     process_config_get, process_keys, process_info, process_replication_config, process_psync, process_send_rdb_file, \
-    process_replication_get_ack
+    process_replication_get_ack, process_wait
 from app import Globals
 
 
