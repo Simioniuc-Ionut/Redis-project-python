@@ -1,6 +1,5 @@
 from app.command_pattern.commands.Command import Command
-
-
+from app import Globals
 class CommandReplconfSendACK(Command):
     """
     The REPLCONF GETACK command.
@@ -21,5 +20,6 @@ class CommandReplconfSendACK(Command):
         """
         Execute the command.
         """
-        msg = f"*3\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n$1\r\n0\r\n"
+        msg = f"*3\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n${len(str(Globals.global_offset))}\r\n{Globals.global_offset}\r\n"
+        # print("Sending ACK ", msg)
         await self.receiver.send_message(msg.encode())

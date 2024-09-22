@@ -6,6 +6,7 @@ class ThreadSafeDict:
         self.lock = asyncio.Lock()
         self.data = {}
 
+
     async def set(self, key, value):
         async with self.lock:
             self.data[key] = value

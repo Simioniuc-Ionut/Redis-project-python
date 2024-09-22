@@ -5,6 +5,12 @@ from app.command_pattern.ProcessCommands import process_ping, process_echo, proc
 from app import Globals
 
 
+def process_replica_offset(message):
+    if Globals.global_role == "replica" and Globals.global_first_ack:
+        Globals.global_offset += len(message)  # increment offset with the length of the message
+        print("Offset is ", Globals.global_offset)
+
+
 class Receiver:
     """
     Receiver class handles incoming messages from a client socket and processes commands.
@@ -49,6 +55,7 @@ class Receiver:
         await loop.sock_sendall(self.client_socket, message)
 
     async def process_message(self, message, invoker):
+
         """
         Process the received message and execute the corresponding command.
 
@@ -56,9 +63,11 @@ class Receiver:
         message (bytes): The received message.
         invoker (object): The invoker object that manages command execution.
         """
+        # here we will increment offset if the server is a replica and if the first ack was sent
+        process_replica_offset(message)
+
         if message:
             lines = message.decode().split("\r\n")
-
             if lines[0][:1] == "*":
                 nr_elements = int(lines[0][1:])  # *3 ,nr elements is 3
                 await self._process_array_message(lines, invoker, nr_elements)
@@ -104,7 +113,10 @@ class Receiver:
         """
         command = arguments[0].upper()
         if command == "PING":
-            await process_ping(self, invoker)
+            if Globals.global_role == "master":
+                await process_ping(self, invoker)
+            else:
+                print("Not a master, so not sending PING")
         elif command == "ECHO":
             await process_echo(self, arguments, invoker)
         elif command == "SET":

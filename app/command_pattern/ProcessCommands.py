@@ -26,10 +26,10 @@ async def add_and_execute_command(invoker, command):
     await invoker.execute_commands()
 
 
-
 async def process_ping(receiver, invoker):
     """
     Process the PING command.
+    Master send this command periodically to check if the replica is still alive.
 
     Parameters:
     receiver (object): The receiver object that will handle the response.
@@ -179,6 +179,7 @@ async def process_send_rdb_file(receiver, invoker):
     file_path = "app/empty.rdb"  # an empty rdb fle
     await add_and_execute_command(invoker, CommandSendRdbFile(receiver, file_path))
 
+
 async def process_replication_get_ack(receiver, arguments, invoker):
     """
     Process the REPLCONF GETACK command.
@@ -188,5 +189,11 @@ async def process_replication_get_ack(receiver, arguments, invoker):
     arguments (list): The list of arguments for the REPLCONF GETACK command.
     invoker (object): The invoker object that manages command execution.
     """
-    await add_and_execute_command(invoker, CommandReplconfSendACK(receiver))
-
+    if not Globals.global_first_ack:
+        await add_and_execute_command(invoker,
+                                      CommandReplconfSendACK(receiver))
+        Globals.global_first_ack = True
+    else:
+        # it's the second ,thirds ... time the replica is sending the ack, we count the offset
+        await add_and_execute_command(invoker,
+                                      CommandReplconfSendACK(receiver))

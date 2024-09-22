@@ -39,6 +39,7 @@ async def perform_handshake(host, port, slave_port):
     # recevice ack concatenaed with the message
     if "REPLCONF" in msg:
         print("IS ACK REPLCONF concatenated with the message")
+        Globals.global_first_ack = True
         await loop.sock_sendall(s, "*3\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n$1\r\n0\r\n".encode())
 
     return s
