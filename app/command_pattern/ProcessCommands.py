@@ -211,5 +211,6 @@ async def process_wait(receiver, arguments, invoker):
     """
     nr_replicas = int(arguments[1])
     milliseconds = int(arguments[2])
+    nr_replicas_conected_to_master_server = len(Globals.global_replica_connections)
     # await asyncio.sleep(milliseconds / 1000)
-    await add_and_execute_command(invoker, CommandWait(receiver, nr_replicas, milliseconds))
+    await add_and_execute_command(invoker, CommandWait(receiver, nr_replicas_conected_to_master_server, milliseconds))
