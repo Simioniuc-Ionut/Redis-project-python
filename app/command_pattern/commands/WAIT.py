@@ -25,4 +25,4 @@ class CommandWait(Command):
         """
         # response = f":{self.numreplicas}\r\n"
         response = self.nr_replicas
-        await self.receiver.send_message(response.encode())
+        await self.receiver.send_message(response)
