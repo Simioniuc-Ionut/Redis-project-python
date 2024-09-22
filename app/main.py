@@ -162,12 +162,6 @@ async def main():
 
     # Parse the arguments
     args = _parser_arguments(argparse.ArgumentParser())
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--dir', type=str, help='Directory to store the data')
-    # parser.add_argument('--dbfilename', type=str, help='Name of the file to store the data')
-    # parser.add_argument('--port', type=int, help='Port number to listen on', default=6379)
-    # parser.add_argument('--replicaof', type=str, help='Replicate data to another server', default='master')
-    # args = parser.parse_args()  # Parse arguments
 
     set_globals_variables(args)
 

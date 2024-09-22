@@ -22,7 +22,7 @@ global_port = None
 global_role = "master"
 global_master_replica_id = "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb"
 global_replica_connections = []
-
+global_no_commads = True
 # Global variables specific to replica server
 global_first_ack = False
 global_offset = 0

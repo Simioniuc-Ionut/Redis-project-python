@@ -1,3 +1,5 @@
+import asyncio
+
 from app.command_pattern.ProcessCommandsToReplicas import process_propagation_send_SET_command_to_replicas
 from app.command_pattern.commands.ConfigGET import CommandConfigGet
 from app.command_pattern.commands.ECHO import CommandECHO
@@ -201,16 +203,37 @@ async def process_replication_get_ack(receiver, arguments, invoker):
 
 
 async def process_wait(receiver, arguments, invoker):
-    """
-    Process the WAIT command.
-
-    Parameters:
-    receiver (object): The receiver object that will handle the response.
-    arguments (list): The list of arguments for the WAIT command.
-    invoker (object): The invoker object that manages command execution.
-    """
+    # """
+    # Process the WAIT command.
+    #
+    # Parameters:
+    # receiver (object): The receiver object that will handle the response.
+    # arguments (list): The list of arguments for the WAIT command.
+    # invoker (object): The invoker object that manages command execution.
+    # """
+    # nr_replicas = int(arguments[1])
+    # milliseconds = int(arguments[2])
+    # nr_replicas_conected_to_master_server = len(Globals.global_replica_connections)
+    # # await asyncio.sleep(milliseconds / 1000)
+    # await add_and_execute_command(invoker, CommandWait(receiver, nr_replicas_conected_to_master_server, milliseconds))
+    # """
+    # Process the WAIT command.
+    #
+    # Parameters:
+    # receiver (object): The receiver object that will handle the response.
+    # arguments (list): The list of arguments for the WAIT command.
+    # invoker (object): The invoker object that manages command execution.
+    # """
+    # nr_replicas = int(arguments[1])
+    # milliseconds = int(arguments[2])
+    # replicas_connections = Globals.global_replica_connections
+    #
+    # # Propagate the WAIT command to all replicas and wait for acknowledgments
+    # acknowledged_replicas = await propagate_wait_command_to_replicas(replicas_connections, nr_replicas,
+    #                                                                  milliseconds)
+    #
+    # # Return the number of replicas that acknowledged the command
+    # await add_and_execute_command(invoker, CommandWait(receiver, acknowledged_replicas))
     nr_replicas = int(arguments[1])
     milliseconds = int(arguments[2])
-    nr_replicas_conected_to_master_server = len(Globals.global_replica_connections)
-    # await asyncio.sleep(milliseconds / 1000)
-    await add_and_execute_command(invoker, CommandWait(receiver, nr_replicas_conected_to_master_server, milliseconds))
+    await add_and_execute_command(invoker, CommandWait(receiver, nr_replicas, milliseconds, Globals.global_replica_connections))
