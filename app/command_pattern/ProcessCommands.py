@@ -83,8 +83,11 @@ async def process_set(receiver, arguments, invoker):
                 seconds = int(arguments[i + 1])
                 await add_and_execute_command(invoker, CommandExpire(receiver, key, seconds, receiver.own_map, True))
 
-    # if there are replica connections, propagate the SET command to them
+    # If there are replica connections and the server role is master, propagate the SET command to replicas
     if Globals.global_replica_connections and Globals.global_role == "master":
+        # Indicate that there are commands to propagate
+        Globals.global_no_commands = False
+        # Propagate the SET command to all connected replicas
         await process_propagation_send_SET_command_to_replicas(key, value)
 
 

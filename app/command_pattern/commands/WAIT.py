@@ -2,6 +2,7 @@ from app.command_pattern.ProcessCommandsToReplicas import propagate_wait_command
 from app.command_pattern.commands.Command import Command
 from app import Globals
 
+
 class CommandWait(Command):
     """
     The WAIT command.
@@ -28,20 +29,22 @@ class CommandWait(Command):
         replicas_connections = self.replicas_connections
 
         # Propagate the WAIT command to all replicas and wait for acknowledgments
-        acknowledged_replicas = await propagate_wait_command_to_replicas(replicas_connections,
-                                                                         self.milliseconds)
+        if not Globals.global_no_commands:
+            acknowledged_replicas = await propagate_wait_command_to_replicas(replicas_connections,
+                                                                             self.milliseconds)
+        else:
+            acknowledged_replicas = len(self.replicas_connections)
+            print("No commands propagated to replicas")
+
+        # debug
         if acknowledged_replicas >= self.nr_replicas:
             print("All replicas acknowledged the command ,", acknowledged_replicas, " replicas", self.nr_replicas)
         else:
             print("Not all replicas acknowledged the command ,", acknowledged_replicas, " replicas", self.nr_replicas)
 
             # Return the number of replicas that acknowledged the command
-        response = ""
-        if not Globals.global_no_commads:
-            response = f":{acknowledged_replicas}\r\n"
-        else:
-            response = f":{len(self.replicas_connections)}\r\n"
-            print("No commands to execute")
+
+        response = f":{acknowledged_replicas}\r\n"
 
         await self.receiver.send_message(response.encode())  # receiver will be the client connection that send
         # the command

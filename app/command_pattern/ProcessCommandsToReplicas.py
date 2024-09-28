@@ -13,7 +13,7 @@ async def process_propagation_send_SET_command_to_replicas(key, value):
             print("Sending SET command to replica")
             await replica.send_message(message.encode())
 
-async def propagate_wait_command_to_repliccas(replicas_connections, milliseconds):
+async def propagate_wait_command_to_replicas(replicas_connections, milliseconds):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(send_and_wait_for_ack, replica, milliseconds) for replica in replicas_connections]
         results = [future.result() for future in concurrent.futures.as_completed(futures)]
